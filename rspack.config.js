@@ -9,7 +9,7 @@ module.exports = {
 	builtins: {
 		html: [
 			{
-				template: "./index.html"
+				template: "./index.webpack.html"
 			}
 		]
 	},
