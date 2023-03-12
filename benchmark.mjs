@@ -4,12 +4,11 @@ import path from "path";
 import puppeteer from "puppeteer";
 
 class BuildTool {
-  constructor(name, port, script, startedRegex, hmrRegex) {
+  constructor(name, port, script, startedRegex) {
     this.name = name;
     this.port = port;
     this.script = script;
     this.startedRegex = startedRegex;
-    this.hmrRegex = hmrRegex;
   }
 
   async startServer() {
@@ -39,9 +38,11 @@ class BuildTool {
 }
 
 const buildTools = [
-  new BuildTool("Rspack", 8080, "start:rspack", /build success, time cost (.+) ms/, /rebuild success, time cost (.+) ms/),
-  new BuildTool("Turbopack", 3000, "start:turbopack", /initial compilation (.+)ms/, /updated in (.+)ms/),
-  new BuildTool("Farm", 9000, "start", /Ready on (?:.+) in (.+)ms/, /updated in (.+)ms/),
+  new BuildTool("Rspack", 8080, "start:rspack", /build success, time cost (.+) ms/),
+  new BuildTool("Turbopack", 3000, "start:turbopack", /initial compilation (.+)ms/),
+  new BuildTool("Webpack", 8081, "start:webpack", /compiled successfully in (.+) ms/),
+  new BuildTool("Vite", 5173, "start:vite", /ready in (.+) ms/),
+  new BuildTool("Farm", 9000, "start", /Ready on (?:.+) in (.+)ms/),
 ]
 
 const browser = await puppeteer.launch();
