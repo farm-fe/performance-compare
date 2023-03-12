@@ -1,4 +1,5 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 
 // webpack.config.js
 module.exports = {
@@ -13,10 +14,21 @@ module.exports = {
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript']
+            presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript'],
+            plugins: [require('react-refresh/babel')]
           }
         },
         exclude: /node_modules/
+      },
+      {
+        test: /\.jsx?$/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env', '@babel/preset-react'],
+            plugins: [require('react-refresh/babel')]
+          }
+        }
       },
       {
         test: /\.css$/,
@@ -28,9 +40,14 @@ module.exports = {
       }
     ]
   },
+  devServer: {
+    port: 8081,
+    hot: true
+  },
   plugins: [
     new HtmlWebpackPlugin({
       template: './index.webpack.html'
-    })
+    }),
+    new ReactRefreshWebpackPlugin()
   ]
 }
