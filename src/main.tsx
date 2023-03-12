@@ -1,20 +1,12 @@
-import React, { Suspense } from 'react';
-import { CounterButton } from './comps/counter-button';
-import { Description } from './comps/description';
+import React from 'react';
 import './main.css';
 
-const DynamicClock = React.lazy(() => import('./comps/dynamic-clock/index'));
+import Triangle from './comps/triangle';
 
 export function Main() {
   return (
-    <Suspense fallback={'loading'}>
-      <div className='button-wrapper'>
-        <CounterButton />
-      </div>
-      <div>
-        <Description />
-      </div>
-      <DynamicClock />
-    </Suspense>
+    <svg height="100%" viewBox="-5 -4.33 10 8.66" style={{ backgroundColor: "black" }}>
+        <Triangle style={{ fill: "white" }}/>
+    </svg>
   );
 }
