@@ -49,5 +49,6 @@ module.exports = {
       template: './index.webpack.html'
     }),
     new ReactRefreshWebpackPlugin()
-  ]
+  ],
+  devtool: false
 }

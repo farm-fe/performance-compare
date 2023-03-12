@@ -1,18 +1,16 @@
 # performance-compare
-Benchmarks for Farm, Webpack, Vite, Rspack and Turbopack.
+Benchmarks for Farm, Webpack, Vite, Rspack and Turbopack. (Without sourcemap)
 > Using Turbopack's bench cases (1000 React components), see https://turbo.build/pack/docs/benchmarks
 
 |                     | **Startup**  | **HMR (Root)**  | **HMR (Leaf)**  |
 | ------------------- | ------- | ----- | --- |
-| Webpack      | 7694ms   | 334ms | 267ms |
-| Vite         | 4625ms  | 32ms  | 27ms |
-| Turbopack   | 2444ms | 9ms | 11ms |
-| Rspack   | 406ms | 311ms | 301ms |
-| Farm    | 395ms ✅  | 7ms ✅  | 12ms ✅  |
+| Webpack      | 7814ms   | 290ms | 232ms |
+| Rspack   | 383ms | 272ms | 260ms |
+| Farm    | 390ms | 6ms | 13ms  |
 
+As Turbopack and Vite does not support disable sourcemap, and Farm does not support sourcemap for now. We do not compare with Turbopack and Vite, we will do the benchmark later when Farm support sourcemap.
 
-
-![xx](./assets/benchmark.png)
+![xx](./assets/benchmark-new.png)
 
 
 Run benchmarks:

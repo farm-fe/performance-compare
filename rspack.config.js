@@ -20,5 +20,6 @@ module.exports = {
 				type: "asset"
 			}
 		]
-	}
+	},
+	devtool: false,
 };
