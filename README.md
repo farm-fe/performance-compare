@@ -1,5 +1,6 @@
 # performance-compare
 Benchmarks for Farm, Webpack, Vite, Rspack and Turbopack.
+> Using Turbopack's bench cases (1000 React components), see https://turbo.build/pack/docs/benchmarks
 
 |                     | **Startup**  | **HMR (Root)**  | **HMR (Leaf)**  |
 | ------------------- | ------- | ----- | --- |
@@ -11,7 +12,7 @@ Benchmarks for Farm, Webpack, Vite, Rspack and Turbopack.
 
 
 
-![xx](./assets/statistics.png)
+![xx](./assets/benchmark.png)
 
 
 Run benchmarks:
@@ -39,7 +40,7 @@ Webpack  Leaf HMR time: 267ms
 Rspack  Leaf HMR time: 301ms
 ```
 
-If you want to start the project with a specified tools, try:
+If you want to start the project with the specified tool, try:
 ```bash
 pnpm i # install dependencies
 
