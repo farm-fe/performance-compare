@@ -50,5 +50,4 @@ module.exports = {
     }),
     new ReactRefreshWebpackPlugin()
   ],
-  devtool: false
 }

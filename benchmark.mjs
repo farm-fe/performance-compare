@@ -39,9 +39,9 @@ class BuildTool {
 
 const buildTools = [
   new BuildTool("Rspack", 8080, "start:rspack", /build success, time cost (.+) ms/),
-  // new BuildTool("Turbopack", 3000, "start:turbopack", /initial compilation (.+)ms/),
+  new BuildTool("Turbopack", 3000, "start:turbopack", /initial compilation (.+)ms/),
   new BuildTool("Webpack", 8081, "start:webpack", /compiled successfully in (.+) ms/),
-  // new BuildTool("Vite", 5173, "start:vite", /ready in (.+) ms/),
+  new BuildTool("Vite", 5173, "start:vite", /ready in (.+) ms/),
   new BuildTool("Farm", 9000, "start", /Ready on (?:.+) in (.+)ms/),
 ]
 

@@ -13,7 +13,7 @@
     "@babel/preset-react": "^7.18.6",
     "@babel/preset-typescript": "^7.21.0",
     "@farmfe/cli": "^0.3.3",
-    "@farmfe/core": "^0.4.2",
+    "@farmfe/core": "^0.4.3",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",
     "@rspack/cli": "latest",
     "@types/react": "18",
