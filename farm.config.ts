@@ -1,19 +1,17 @@
-import { defineFarmConfig } from '@farmfe/core/dist/config';
-
-export default defineFarmConfig({
+export default {
   compilation: {
     input: {
-      index: './index.html',
+      index: "./index.html",
     },
     resolve: {
       symlinks: true,
-      mainFields: ['module', 'main', 'customMain'],
+      mainFields: ["module", "main", "customMain"],
     },
     output: {
-      path: './build',
+      path: "./build",
     },
   },
   server: {
     hmr: true,
   },
-});
+};
