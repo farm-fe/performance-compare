@@ -14,5 +14,5 @@ export default {
   server: {
     hmr: true,
   },
-  plugins: ['@farmfe/plugin-react']
-}
+  plugins: ["@farmfe/plugin-react"],
+};

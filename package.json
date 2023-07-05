@@ -5,7 +5,8 @@
     "clsx": "^1.2.1",
     "puppeteer": "^19.7.4",
     "react": "18",
-    "react-dom": "18"
+    "react-dom": "18",
+    "tree-kill": "^1.2.2"
   },
   "devDependencies": {
     "@babel/core": "^7.21.0",
@@ -14,12 +15,14 @@
     "@babel/preset-typescript": "^7.21.0",
     "@farmfe/cli": "^0.5.5",
     "@farmfe/core": "^0.10.1",
+    "@farmfe/plugin-react": "^0.2.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",
     "@rspack/cli": "^0.2.5",
     "@types/react": "18",
     "@types/react-dom": "18",
     "@vitejs/plugin-react": "^4.0.1",
     "babel-loader": "^9.1.2",
+    "core-js": "^3.31.0",
     "css-loader": "^6.7.3",
     "html-webpack-plugin": "^5.5.0",
     "next": "^13.4.8",
