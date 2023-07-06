@@ -2,7 +2,7 @@ import { spawn } from "child_process";
 import { appendFileSync, readFileSync, writeFileSync } from "fs";
 import path from "path";
 import puppeteer from "puppeteer";
-import kill from 'tree-kill';
+import kill from "tree-kill";
 
 class BuildTool {
   constructor(name, port, script, startedRegex) {
@@ -14,28 +14,31 @@ class BuildTool {
 
   async startServer() {
     return new Promise((resolve, reject) => {
-      const child = spawn(`npm`, ["run", this.script], { stdio: 'pipe', shell: true });
+      const child = spawn(`npm`, ["run", this.script], {
+        stdio: "pipe",
+        shell: true,
+      });
       this.child = child;
 
-      child.stdout.on('data', (data) => {
-        // console.log(data.toString());
+      child.stdout.on("data", (data) => {
         const match = this.startedRegex.exec(data);
+        console.log(match);
         if (match && match[1]) {
+          // console.log(match);
           resolve(Number(match[1]));
         }
       });
-      child.on('error', (error) => {
+      child.on("error", (error) => {
         console.log(`error: ${error.message}`);
         reject(error);
       });
-      child.on('exit', (code) => {
+      child.on("exit", (code) => {
         // console.log(`child process exited with code ${code}`);
         if (code !== 0) {
           reject(code);
         }
       });
     });
-
   }
 
   stopServer() {
@@ -47,18 +50,23 @@ class BuildTool {
 }
 
 const buildTools = [
-  new BuildTool("Turbopack 13.3.0 ", 3000, "start:turbopack", /startup (.+)ms/),
-  new BuildTool("Rspack 0.1.6", 8080, "start:rspack", /Time: (.+)ms/),
-  new BuildTool("Webpack(babel) 5.78.0", 8081, "start:webpack", /compiled successfully in (.+) ms/),
-  new BuildTool("Vite 4.3.0-beta.4", 5173, "start:vite", /ready in (.+) ms/),
-  new BuildTool("Farm 0.5.4", 9000, "start", /Ready on (?:.+) in (.+)ms/),
-]
+  new BuildTool("Turbopack 13.4.8 ", 3000, "start:turbopack", /started server/),
+  // new BuildTool("Rspack 0.2.5", 8080, "start:rspack", /Time: (.+)ms/),
+  // new BuildTool(
+  //   "Webpack(babel) 5.88.0",
+  //   8081,
+  //   "start:webpack",
+  //   /compiled successfully in (.+) ms/
+  // ),
+  // new BuildTool("Vite 4.3.9", 5173, "start:vite", /ready in (.+) ms/),
+  // new BuildTool("Farm 0.10.1", 9000, "start", /Ready on (?:.+) in (.+)ms/),
+];
 
 const browser = await puppeteer.launch();
 
 const n = 3;
 
-console.log('Running benchmark ' + n + ' times, please wait...');
+console.log("Running benchmark " + n + " times, please wait...");
 
 const totalResults = [];
 
@@ -66,38 +74,40 @@ for (let i = 0; i < n; i++) {
   await runBenchmark();
 }
 
-
 async function runBenchmark() {
   const results = {};
 
   let waitResolve = null;
-  const waitPromise = new Promise(resolve => {
+  const waitPromise = new Promise((resolve) => {
     waitResolve = resolve;
   });
-
 
   for (const buildTool of buildTools) {
     const time = await buildTool.startServer();
     const page = await browser.newPage();
     const start = Date.now();
 
-    page.on('load', () => {
+    page.on("load", () => {
       const loadTime = Date.now() - start;
-      console.log(buildTool.name, ": startup time: " + (time + loadTime) + "ms");
+      console.log(
+        buildTool.name,
+        ": startup time: " + (time + loadTime) + "ms"
+      );
 
       if (!results[buildTool.name]) {
         results[buildTool.name] = {};
       }
 
-      results[buildTool.name]['startup(startStartTime + onLoadTime)'] = (time + loadTime);
+      results[buildTool.name]["startup(startStartTime + onLoadTime)"] =
+        time + loadTime;
       results[buildTool.name].serverStartTime = time;
       results[buildTool.name].onLoadTime = loadTime;
     });
 
-    // console.log('Navigating to', `http://localhost:${buildTool.port}`);
+    // console.log("Navigating to", `http://localhost:${buildTool.port}`);
     await page.goto(`http://localhost:${buildTool.port}`);
 
-    page.on('console', (event) => {
+    page.on("console", (event) => {
       const isFinished = () => {
         for (const result of Object.values(results)) {
           if (!result.rootHmr || !result.leafHmr) {
@@ -108,7 +118,7 @@ async function runBenchmark() {
         return true;
       };
 
-      if (event.text().includes('root hmr')) {
+      if (event.text().includes("root hmr")) {
         const hmrTime = Date.now() - hmrRootStart;
         console.log(buildTool.name, " Root HMR time: " + hmrTime + "ms");
 
@@ -118,10 +128,13 @@ async function runBenchmark() {
           waitResolve();
         }
 
-        if (results[buildTool.name].rootHmr && results[buildTool.name].leafHmr) {
+        if (
+          results[buildTool.name].rootHmr &&
+          results[buildTool.name].leafHmr
+        ) {
           page.close();
         }
-      } else if (event.text().includes('leaf hmr')) {
+      } else if (event.text().includes("leaf hmr")) {
         const hmrTime = Date.now() - hmrLeafStart;
         console.log(buildTool.name, " Leaf HMR time: " + hmrTime + "ms");
 
@@ -131,39 +144,59 @@ async function runBenchmark() {
           waitResolve();
         }
 
-        if (results[buildTool.name].rootHmr && results[buildTool.name].leafHmr) {
+        if (
+          results[buildTool.name].rootHmr &&
+          results[buildTool.name].leafHmr
+        ) {
           page.close();
         }
       }
     });
   }
 
-  const originalRootFileContent = readFileSync(path.resolve('src', 'comps', 'triangle.jsx'), 'utf-8');
+  const originalRootFileContent = readFileSync(
+    path.resolve("src", "comps", "triangle.jsx"),
+    "utf-8"
+  );
   const hmrRootStart = Date.now();
-  appendFileSync(path.resolve('src', 'comps', 'triangle.jsx'), `
+  appendFileSync(
+    path.resolve("src", "comps", "triangle.jsx"),
+    `
   console.log('root hmr');
-`)
+`
+  );
 
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  const originalLeafFileContent = readFileSync(path.resolve('src', 'comps', 'triangle_1_1_2_1_2_2_1.jsx'), 'utf-8');
+  const originalLeafFileContent = readFileSync(
+    path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
+    "utf-8"
+  );
   const hmrLeafStart = Date.now();
-  appendFileSync(path.resolve('src', 'comps', 'triangle_1_1_2_1_2_2_1.jsx'), `
+  appendFileSync(
+    path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
+    `
   console.log('leaf hmr');
-`)
+`
+  );
 
   await waitPromise;
 
   // restore files
-  writeFileSync(path.resolve('src', 'comps', 'triangle.jsx'), originalRootFileContent);
-  writeFileSync(path.resolve('src', 'comps', 'triangle_1_1_2_1_2_2_1.jsx'), originalLeafFileContent);
+  writeFileSync(
+    path.resolve("src", "comps", "triangle.jsx"),
+    originalRootFileContent
+  );
+  writeFileSync(
+    path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
+    originalLeafFileContent
+  );
 
   for (const buildTool of buildTools) {
     buildTool.stopServer();
   }
 
   await new Promise((resolve) => setTimeout(resolve, 500));
-
 
   totalResults.push(results);
 }
@@ -189,9 +222,9 @@ for (const result of totalResults) {
 
 for (const [name, values] of Object.entries(averageResults)) {
   for (const [key, value] of Object.entries(values)) {
-    averageResults[name][key] = (value / totalResults.length) + 'ms';
+    averageResults[name][key] = value / totalResults.length + "ms";
   }
 }
 
-console.log('average results of ' + totalResults.length + ' runs:');
+console.log("average results of " + totalResults.length + " runs:");
 console.table(averageResults);
