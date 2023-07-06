@@ -49,13 +49,13 @@ class BuildTool {
 
 const buildTools = [
   // new BuildTool("Turbopack 13.3.0 ", 3000, "start:turbopack", /(.+)ms/),
-  new BuildTool("Rspack 0.2.5", 8080, "start:rspack", /Time: (.+)ms/),
-  new BuildTool(
-    "Webpack(babel) 5.88.0",
-    8081,
-    "start:webpack",
-    /compiled successfully in (.+) ms/
-  ),
+  // new BuildTool("Rspack 0.2.5", 8080, "start:rspack", /Time: (.+)ms/),
+  // new BuildTool(
+  //   "Webpack(babel) 5.88.0",
+  //   8081,
+  //   "start:webpack",
+  //   /compiled successfully in (.+) ms/
+  // ),
   new BuildTool("Vite 4.3.9", 5173, "start:vite", /ready in (.+) ms/),
   // new BuildTool("Farm 0.10.1", 9000, "start", /Ready on (?:.+) in (.+)ms/),
 ];
@@ -115,7 +115,7 @@ async function runBenchmark() {
 
         return true;
       };
-
+      
       if (event.text().includes("root hmr")) {
         const hmrTime = Date.now() - hmrRootStart;
         console.log(buildTool.name, " Root HMR time: " + hmrTime + "ms");
