@@ -22,9 +22,7 @@ class BuildTool {
 
       child.stdout.on("data", (data) => {
         const match = this.startedRegex.exec(data);
-        console.log(match);
         if (match && match[1]) {
-          // console.log(match);
           resolve(Number(match[1]));
         }
       });
@@ -50,7 +48,7 @@ class BuildTool {
 }
 
 const buildTools = [
-  new BuildTool("Turbopack 13.4.8 ", 3000, "start:turbopack", /started server/),
+  // new BuildTool("Turbopack 13.4.8 ", 3000, "start:turbopack", /startup (.+)ms/),
   // new BuildTool("Rspack 0.2.5", 8080, "start:rspack", /Time: (.+)ms/),
   // new BuildTool(
   //   "Webpack(babel) 5.88.0",
@@ -58,13 +56,13 @@ const buildTools = [
   //   "start:webpack",
   //   /compiled successfully in (.+) ms/
   // ),
-  // new BuildTool("Vite 4.3.9", 5173, "start:vite", /ready in (.+) ms/),
+  new BuildTool("Vite 4.3.9", 5173, "start:vite", /ready in (.+) ms/),
   // new BuildTool("Farm 0.10.1", 9000, "start", /Ready on (?:.+) in (.+)ms/),
 ];
 
 const browser = await puppeteer.launch();
 
-const n = 3;
+const n = 1;
 
 console.log("Running benchmark " + n + " times, please wait...");
 
@@ -106,7 +104,6 @@ async function runBenchmark() {
 
     // console.log("Navigating to", `http://localhost:${buildTool.port}`);
     await page.goto(`http://localhost:${buildTool.port}`);
-
     page.on("console", (event) => {
       const isFinished = () => {
         for (const result of Object.values(results)) {
@@ -117,6 +114,8 @@ async function runBenchmark() {
 
         return true;
       };
+
+      console.log(event.text());
 
       if (event.text().includes("root hmr")) {
         const hmrTime = Date.now() - hmrRootStart;
