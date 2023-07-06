@@ -48,14 +48,14 @@ class BuildTool {
 }
 
 const buildTools = [
-  // new BuildTool("Turbopack 13.4.8 ", 3000, "start:turbopack", /startup (.+)ms/),
-  // new BuildTool("Rspack 0.2.5", 8080, "start:rspack", /Time: (.+)ms/),
-  // new BuildTool(
-  //   "Webpack(babel) 5.88.0",
-  //   8081,
-  //   "start:webpack",
-  //   /compiled successfully in (.+) ms/
-  // ),
+  // new BuildTool("Turbopack 13.3.0 ", 3000, "start:turbopack", /(.+)ms/),
+  new BuildTool("Rspack 0.2.5", 8080, "start:rspack", /Time: (.+)ms/),
+  new BuildTool(
+    "Webpack(babel) 5.88.0",
+    8081,
+    "start:webpack",
+    /compiled successfully in (.+) ms/
+  ),
   new BuildTool("Vite 4.3.9", 5173, "start:vite", /ready in (.+) ms/),
   // new BuildTool("Farm 0.10.1", 9000, "start", /Ready on (?:.+) in (.+)ms/),
 ];
@@ -82,6 +82,7 @@ async function runBenchmark() {
 
   for (const buildTool of buildTools) {
     const time = await buildTool.startServer();
+    console.log(time);
     const page = await browser.newPage();
     const start = Date.now();
 
@@ -102,7 +103,7 @@ async function runBenchmark() {
       results[buildTool.name].onLoadTime = loadTime;
     });
 
-    // console.log("Navigating to", `http://localhost:${buildTool.port}`);
+    console.log("Navigating to", `http://localhost:${buildTool.port}`);
     await page.goto(`http://localhost:${buildTool.port}`);
     page.on("console", (event) => {
       const isFinished = () => {
@@ -114,8 +115,6 @@ async function runBenchmark() {
 
         return true;
       };
-
-      console.log(event.text());
 
       if (event.text().includes("root hmr")) {
         const hmrTime = Date.now() - hmrRootStart;
