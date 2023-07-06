@@ -52,3 +52,13 @@ export default React.memo(Triangle);
   console.log('leaf hmr');
 
   console.log('leaf hmr');
+
+  console.log('leaf hmr');
+
+  console.log('leaf hmr');
+
+  console.log('leaf hmr');
+
+  console.log('leaf hmr');
+
+  console.log('leaf hmr');
