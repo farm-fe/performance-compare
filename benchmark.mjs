@@ -48,16 +48,16 @@ class BuildTool {
 }
 
 const buildTools = [
-  new BuildTool("Turbopack 13.4.8 ", 3000, "start:turbopack", /(.+)ms/),
+  // new BuildTool("Turbopack 13.4.8 ", 3000, "start:turbopack", /(.+)ms/),
   new BuildTool("Rspack 0.2.5", 8080, "start:rspack", /Time: (.+)ms/),
-  new BuildTool(
-    "Webpack(babel) 5.88.0",
-    8081,
-    "start:webpack",
-    /compiled successfully in (.+) ms/
-  ),
+  // new BuildTool(
+  //   "Webpack(babel) 5.88.0",
+  //   8081,
+  //   "start:webpack",
+  //   /compiled successfully in (.+) ms/
+  // ),
   new BuildTool("Vite 4.3.9", 5173, "start:vite", /ready in (.+) ms/),
-  new BuildTool("Farm 0.10.2", 9000, "start", /Ready on (?:.+) in (.+)ms/),
+  new BuildTool("Farm 0.10.3", 9000, "start", /Ready on (?:.+) in (.+)ms/),
 ];
 
 const browser = await puppeteer.launch();
