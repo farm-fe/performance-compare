@@ -57,7 +57,7 @@ const buildTools = [
     /compiled successfully in (.+) ms/
   ),
   new BuildTool("Vite 4.3.9", 5173, "start:vite", /ready in (.+) ms/),
-  new BuildTool("Farm 0.10.1", 9000, "start", /Ready on (?:.+) in (.+)ms/),
+  new BuildTool("Farm 0.10.2", 9000, "start", /Ready on (?:.+) in (.+)ms/),
 ];
 
 const browser = await puppeteer.launch();
@@ -115,7 +115,7 @@ async function runBenchmark() {
 
         return true;
       };
-      
+      console.log(event.text());
       if (event.text().includes("root hmr")) {
         const hmrTime = Date.now() - hmrRootStart;
         console.log(buildTool.name, " Root HMR time: " + hmrTime + "ms");
@@ -152,6 +152,8 @@ async function runBenchmark() {
     });
   }
 
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
   const originalRootFileContent = readFileSync(
     path.resolve("src", "comps", "triangle.jsx"),
     "utf-8"
@@ -163,9 +165,6 @@ async function runBenchmark() {
   console.log('root hmr');
 `
   );
-
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
   const originalLeafFileContent = readFileSync(
     path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
     "utf-8"
@@ -174,8 +173,8 @@ async function runBenchmark() {
   appendFileSync(
     path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
     `
-  console.log('leaf hmr');
-`
+    console.log('leaf hmr');
+  `
   );
 
   await waitPromise;
