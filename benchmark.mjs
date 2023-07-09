@@ -3,7 +3,8 @@ import { appendFileSync, readFileSync, writeFileSync } from "fs";
 import path from "path";
 import puppeteer from "puppeteer";
 import kill from "tree-kill";
-
+import util from "util";
+const spawn2 = util.promisify(spawn);
 class BuildTool {
   constructor(name, port, script, startedRegex) {
     this.name = name;
@@ -57,7 +58,7 @@ const buildTools = [
   //   /compiled successfully in (.+) ms/
   // ),
   // new BuildTool("Vite 4.4.2", 5173, "start:vite", /ready in (.+) ms/),
-  new BuildTool("Farm 0.10.3", 9000, "start", /Ready on (?:.+) in (.+)ms/),
+  // new BuildTool("Farm 0.10.3", 9000, "start", /Ready on (?:.+) in (.+)ms/),
 ];
 
 const browser = await puppeteer.launch();
@@ -68,9 +69,9 @@ console.log("Running benchmark " + n + " times, please wait...");
 
 const totalResults = [];
 
-for (let i = 0; i < n; i++) {
-  await runBenchmark();
-}
+// for (let i = 0; i < n; i++) {
+//   await runBenchmark();
+// }
 
 async function runBenchmark() {
   const results = {};
@@ -115,7 +116,6 @@ async function runBenchmark() {
 
         return true;
       };
-      console.log(event.text());
       if (event.text().includes("root hmr")) {
         const hmrTime = Date.now() - hmrRootStart;
         console.log(buildTool.name, " Root HMR time: " + hmrTime + "ms");
@@ -152,7 +152,7 @@ async function runBenchmark() {
     });
   }
 
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 3000));
 
   const originalRootFileContent = readFileSync(
     path.resolve("src", "comps", "triangle.jsx"),
@@ -225,3 +225,32 @@ for (const [name, values] of Object.entries(averageResults)) {
 
 console.log("average results of " + totalResults.length + " runs:");
 console.table(averageResults);
+
+async function runBuildCommand(command) {
+  console.log(`Running build command: ${command}`);
+  const startTime = performance.now();
+  const child = spawn(`npm`, ["run", command], {
+    stdio: ["pipe", process.stdout, process.stderr],
+    shell: true,
+  });
+  await new Promise((resolve, reject) => {
+    child.on("exit", resolve);
+    child.on("error", reject);
+  });
+  const endTime = performance.now();
+  console.log(`Finished build command: ${command}`);
+  const elapsedTime = Math.floor(endTime - startTime);
+  return elapsedTime;
+}
+
+(async () => {
+  console.log(formatTime(await runBuildCommand("build")));
+  console.log(formatTime(await runBuildCommand("build:rspack")));
+  console.log(formatTime(await runBuildCommand("build:vite")));
+  console.log(formatTime(await runBuildCommand("build:turbopack")));
+  console.log(await runBuildCommand("build:webpack"));
+})();
+
+function formatTime(time) {
+  return `${time}ms`;
+}
