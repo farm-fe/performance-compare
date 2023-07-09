@@ -25,10 +25,10 @@
     "core-js": "^3.31.0",
     "css-loader": "^6.7.3",
     "html-webpack-plugin": "^5.5.0",
-    "next": "^13.4.8",
+    "next": "^13.4.9",
     "react-refresh": "^0.14.0",
     "style-loader": "^3.3.1",
-    "vite": "^4.3.9",
+    "vite": "^4.4.2",
     "webpack": "^5.88.1",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1"
@@ -36,9 +36,14 @@
   "scripts": {
     "benchmark": "node benchmark.mjs",
     "start": "farm start",
+    "build": "farm build",
     "start:vite": "vite",
+    "build:vite": "vite build",
     "start:webpack": "webpack serve --mode development",
+    "build:webpack": "webpack build --mode production",
     "start:rspack": "rspack serve",
-    "start:turbopack": "next dev --turbo"
+    "build:rspack": "rspack build",
+    "start:turbopack": "next dev --turbo",
+    "build:turbopack": "next build"
   }
 }
