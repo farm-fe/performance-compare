@@ -226,31 +226,70 @@ for (const [name, values] of Object.entries(averageResults)) {
 console.log("average results of " + totalResults.length + " runs:");
 console.table(averageResults);
 
-async function runBuildCommand(command) {
-  console.log(`Running build command: ${command}`);
-  const startTime = performance.now();
-  const child = spawn(`npm`, ["run", command], {
-    stdio: ["pipe", process.stdout, process.stderr],
+const buildCommandTools = [
+  {
+    name: "Farm 0.10.3",
+    command: "build",
+    regex: /in (\d+)/,
+    skip: true,
+  },
+  {
+    name: "Rspack 0.2.5",
+    command: "build:rspack",
+    regex: /Time: (\d+)/,
+    skip: true,
+  },
+  {
+    name: "Turbopack 13.4.9 ",
+    command: "build:turbopack",
+    regex: /Creating an optimized/,
+    skip: false,
+  },
+  {
+    name: "Webpack(babel) 5.88.0",
+    command: "build:webpack",
+    regex: /webpack build/,
+    skip: true,
+  },
+  {
+    name: "Vite 4.4.2",
+    command: "build:vite",
+    regex: /built in (\d+)/,
+    skip: true,
+  },
+];
+
+async function runBuildCommand(buildCommandTool) {
+  console.log(`Running build command: ${buildCommandTool.command}`);
+  let startTime = null;
+  let skipTime = null;
+  const child = spawn(`npm`, ["run", buildCommandTool.command], {
+    stdio: ["pipe"],
     shell: true,
+  });
+  child.stdout.on("data", (data) => {
+    if (!buildCommandTool.skip) {
+      startTime = performance.now();
+    }
+    const match = buildCommandTool.regex.exec(data.toString());
+    if (match !== null && match[1] && buildCommandTool.skip) {
+      const time = match[1];
+      skipTime = time;
+    }
   });
   await new Promise((resolve, reject) => {
     child.on("exit", resolve);
     child.on("error", reject);
   });
   const endTime = performance.now();
-  console.log(`Finished build command: ${command}`);
+  console.log(`Finished build command: ${buildCommandTool.command}`);
   const elapsedTime = Math.floor(endTime - startTime);
-  return elapsedTime;
+  return buildCommandTool.skip ? `${skipTime}ms` : `${elapsedTime}ms`;
 }
 
 (async () => {
-  console.log(formatTime(await runBuildCommand("build")));
-  console.log(formatTime(await runBuildCommand("build:rspack")));
-  console.log(formatTime(await runBuildCommand("build:vite")));
-  console.log(formatTime(await runBuildCommand("build:turbopack")));
-  console.log(await runBuildCommand("build:webpack"));
+  for (const buildCommandTool of buildCommandTools) {
+    console.warn(await runBuildCommand(buildCommandTool));
+  }
+  process.exit();
 })();
-
-function formatTime(time) {
-  return `${time}ms`;
-}
