@@ -1,16 +1,26 @@
 import { spawn } from "child_process";
-import { appendFile, appendFileSync, readFileSync, writeFileSync } from "fs";
+import { appendFile, readFileSync, writeFileSync } from "fs";
 import path from "path";
 import puppeteer from "puppeteer";
 import kill from "tree-kill";
-import util from "util";
-const spawn2 = util.promisify(spawn);
+
 class BuildTool {
-  constructor(name, port, script, startedRegex) {
+  constructor(
+    name,
+    port,
+    script,
+    startedRegex,
+    buildScript,
+    buildRegex,
+    skipMatch
+  ) {
     this.name = name;
     this.port = port;
     this.script = script;
     this.startedRegex = startedRegex;
+    this.buildScript = buildScript;
+    this.buildRegex = buildRegex;
+    this.skipMatch = skipMatch;
   }
 
   async startServer() {
@@ -50,37 +60,105 @@ class BuildTool {
     this.child.stderr.destroy();
     kill(this.child.pid);
   }
+
+  async bundle() {
+    return new Promise(async (resolve) => {
+      console.log(`Running build command: ${this.buildScript}`);
+      let startTime = null;
+      let skipTime = null;
+      const child = spawn(`npm`, ["run", this.buildScript], {
+        stdio: ["pipe"],
+        shell: true,
+      });
+      if (!this.skipMatch) {
+        startTime = performance.now();
+      }
+      child.stdout.on("data", (data) => {
+        // console.log(data.toString());
+        const match = this.buildRegex.exec(data.toString());
+        console.log(match);
+        if (match !== null && match[1] && this.skipMatch) {
+          const time = match[1];
+          const unit = match[2];
+          if (unit === "s") {
+            skipTime = time * 1000;
+          } else {
+            skipTime = time;
+          }
+          const endTime = performance.now();
+          const elapsedTime = Math.floor(endTime - startTime);
+          resolve(this.skipMatch ? `${skipTime}` : `${elapsedTime}`);
+        }
+      });
+      await new Promise((resolve, reject) => {
+        child.on("exit", resolve);
+        child.on("error", reject);
+      });
+      const endTime = performance.now();
+      const elapsedTime = Math.floor(endTime - startTime);
+      resolve(this.skipMatch ? `${skipTime}` : `${elapsedTime}`);
+    });
+  }
 }
 
 const buildTools = [
   new BuildTool(
+    "Farm 0.10.3",
+    9000,
+    "start",
+    /Ready on (?:.+) in (.+)ms/,
+    "build",
+    /in (\d+)/,
+    true
+  ),
+  new BuildTool(
+    "Rspack 0.2.5",
+    8080,
+    "start:rspack",
+    /Time: (.+)ms/,
+    "build:rspack",
+    /Time: (\d+)(s|ms)/,
+    true
+  ),
+  new BuildTool(
+    "Vite 4.4.2",
+    5173,
+    "start:vite",
+    /ready in (.+) ms/,
+    "build:vite",
+    /built in (\d+\.\d+)(s|ms)/,
+    true
+  ),
+  new BuildTool(
     "Turbopack 13.4.9 ",
     3000,
     "start:turbopack",
-    /started server on/
+    /started server on/,
+    "build:turbopack",
+    /Creating an optimized/,
+    false
   ),
-  new BuildTool("Rspack 0.2.5", 8080, "start:rspack", /Time: (.+)ms/),
   new BuildTool(
     "Webpack(babel) 5.88.0",
     8081,
     "start:webpack",
-    /compiled .+ in (.+) ms/
+    /compiled .+ in (.+) ms/,
+    "build:webpack",
+    /in (\d+) ms/
   ),
-  new BuildTool("Vite 4.4.2", 5173, "start:vite", /ready in (.+) ms/),
-  new BuildTool("Farm 0.10.3", 9000, "start", /Ready on (?:.+) in (.+)ms/),
 ];
 
 const browser = await puppeteer.launch();
 
-const n = 3;
+const n = 1;
 
 console.log("Running benchmark " + n + " times, please wait...");
 
 const totalResults = [];
 
-// for (let i = 0; i < n; i++) {
-//   await runBenchmark();
-// }
+for (let i = 0; i < n; i++) {
+  await runBenchmark();
+}
 
 async function runBenchmark() {
   const results = {};
@@ -113,7 +191,7 @@ async function runBenchmark() {
       results[buildTool.name].onLoadTime = loadTime;
     });
 
-    console.log("Navigating to", `http://localhost:${buildTool.port}`);
+    // console.log("Navigating to", `http://localhost:${buildTool.port}`);
     await page.goto(`http://localhost:${buildTool.port}`);
     page.on("console", (event) => {
       const isFinished = () => {
@@ -229,12 +307,18 @@ console.log('root hmr');
 
   await new Promise((resolve) => setTimeout(resolve, 500));
 
+  for (const buildTool of buildTools) {
+    const time = await buildTool.bundle();
+    console.log(buildTool.name, ": build time: " + time + "ms");
+    results[buildTool.name].buildTime = time;
+  }
+
   totalResults.push(results);
 }
 
 // average results
 const averageResults = {};
-
+console.log(totalResults);
 for (const result of totalResults) {
   for (const [name, values] of Object.entries(result)) {
     if (!averageResults[name]) {
@@ -260,72 +344,77 @@ for (const [name, values] of Object.entries(averageResults)) {
 console.log("average results of " + totalResults.length + " runs:");
 console.table(averageResults);
 
-const buildCommandTools = [
-  {
-    name: "Farm 0.10.3",
-    command: "build",
-    regex: /in (\d+)/,
-    skip: true,
-  },
-  {
-    name: "Rspack 0.2.5",
-    command: "build:rspack",
-    regex: /Time: (\d+)/,
-    skip: true,
-  },
-  {
-    name: "Vite 4.4.2",
-    command: "build:vite",
-    regex: /built in (\d+\.\d+)/,
-    skip: true,
-  },
-  {
-    name: "Turbopack 13.4.9 ",
-    command: "build:turbopack",
-    regex: /Creating an optimized/,
-    skip: false,
-  },
-  {
-    name: "Webpack(babel) 5.88.0",
-    command: "build:webpack",
-    regex: /in (\d+) ms/,
-    skip: true,
-  },
-];
+// const buildCommandTools = [
+//   {
+//     name: "Farm 0.10.3",
+//     command: "build",
+//     regex: /in (\d+)/,
+//     skip: true,
+//   },
+//   {
+//     name: "Rspack 0.2.5",
+//     command: "build:rspack",
+//     regex: /Time: (\d+)(s|ms)/,
+//     skip: true,
+//   },
+//   {
+//     name: "Vite 4.4.2",
+//     command: "build:vite",
+//     regex: /built in (\d+\.\d+)(s|ms)/,
+//     skip: true,
+//   },
+//   {
+//     name: "Turbopack 13.4.9 ",
+//     command: "build:turbopack",
+//     regex: /Creating an optimized/,
+//     skip: false,
+//   },
+//   {
+//     name: "Webpack(babel) 5.88.0",
+//     command: "build:webpack",
+//     regex: /in (\d+) ms/,
+//     skip: true,
+//   },
+// ];
 
-async function runBuildCommand(buildCommandTool) {
-  console.log(`Running build command: ${buildCommandTool.command}`);
-  let startTime = null;
-  let skipTime = null;
-  const child = spawn(`npm`, ["run", buildCommandTool.command], {
-    stdio: ["pipe"],
-    shell: true,
-  });
-  if (!buildCommandTool.skip) {
-    startTime = performance.now();
-  }
-  child.stdout.on("data", (data) => {
-    // console.log(data.toString());
-    const match = buildCommandTool.regex.exec(data.toString());
-    // console.log(match);
-    if (match !== null && match[1] && buildCommandTool.skip) {
-      const time = match[1];
-      skipTime = time;
-    }
-  });
-  await new Promise((resolve, reject) => {
-    child.on("exit", resolve);
-    child.on("error", reject);
-  });
-  const endTime = performance.now();
-  console.log(`Finished build command: ${buildCommandTool.command}`);
-  const elapsedTime = Math.floor(endTime - startTime);
-  return buildCommandTool.skip ? `${skipTime}ms` : `${elapsedTime}ms`;
-}
+// async function runBuildCommand(buildCommandTool) {
+//   console.log(`Running build command: ${buildCommandTool.command}`);
+//   let startTime = null;
+//   let skipTime = null;
+//   const child = spawn(`npm`, ["run", buildCommandTool.command], {
+//     stdio: ["pipe"],
+//     shell: true,
+//   });
+//   if (!buildCommandTool.skip) {
+//     startTime = performance.now();
+//   }
+//   child.stdout.on("data", (data) => {
+//     // console.log(data.toString());
+//     const match = buildCommandTool.regex.exec(data.toString());
+//     // console.log(match);
+//     if (match !== null && match[1] && buildCommandTool.skip) {
+//       const time = match[1];
+//       const unit = match[2];
+//       if (unit === "s") {
+//         skipTime = time * 1000;
+//       } else {
+//         skipTime = time;
+//       }
+//     }
+//   });
+//   await new Promise((resolve, reject) => {
+//     child.on("exit", resolve);
+//     child.on("error", reject);
+//   });
+//   const endTime = performance.now();
+//   console.log(`Finished build command: ${buildCommandTool.command}`);
+//   const elapsedTime = Math.floor(endTime - startTime);
+//   return buildCommandTool.skip ? `${skipTime}ms` : `${elapsedTime}ms`;
+// }
 
-(async () => {
-  for (const buildCommandTool of buildCommandTools) {
-    console.warn(await runBuildCommand(buildCommandTool));
-  }
-  process.exit();
-})();
+// (async () => {
+//   for (const buildCommandTool of buildCommandTools) {
+//     console.warn(await runBuildCommand(buildCommandTool));
+//   }
+//   process.exit();
+// })();
