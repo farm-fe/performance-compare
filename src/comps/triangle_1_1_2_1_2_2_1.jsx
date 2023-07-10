@@ -25,4 +25,3 @@ function Triangle({ style }) {
 }
 
 export default React.memo(Triangle);
-  

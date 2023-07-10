@@ -53,7 +53,12 @@ class BuildTool {
 }
 
 const buildTools = [
-  new BuildTool("Turbopack 13.4.9 ", 3000, "start:turbopack", /started server on/),
+  new BuildTool(
+    "Turbopack 13.4.9 ",
+    3000,
+    "start:turbopack",
+    /started server on/
+  ),
   new BuildTool("Rspack 0.2.5", 8080, "start:rspack", /Time: (.+)ms/),
   new BuildTool(
     "Webpack(babel) 5.88.0",
@@ -73,9 +78,9 @@ console.log("Running benchmark " + n + " times, please wait...");
 
 const totalResults = [];
 
-for (let i = 0; i < n; i++) {
-  await runBenchmark();
-}
+// for (let i = 0; i < n; i++) {
+//   await runBenchmark();
+// }
 
 async function runBenchmark() {
   const results = {};
@@ -163,19 +168,22 @@ async function runBenchmark() {
     "utf-8"
   );
   let hmrRootStart = -1;
-  appendFile(    path.resolve("src", "comps", "triangle.jsx"),
-  `
+  appendFile(
+    path.resolve("src", "comps", "triangle.jsx"),
+    `
 console.log('root hmr');
-`, (err) => {
-    if (err) throw err;
-    hmrRootStart = Date.now();
-})
-//   appendFileSync(
-//     path.resolve("src", "comps", "triangle.jsx"),
-//     `
-//   console.log('root hmr');
-// `
-//   );
+`,
+    (err) => {
+      if (err) throw err;
+      hmrRootStart = Date.now();
+    }
+  );
+  //   appendFileSync(
+  //     path.resolve("src", "comps", "triangle.jsx"),
+  //     `
+  //   console.log('root hmr');
+  // `
+  //   );
 
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -183,14 +191,17 @@ console.log('root hmr');
     path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
     "utf-8"
   );
-    let hmrLeafStart = -1;
-    appendFile(    path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
+  let hmrLeafStart = -1;
+  appendFile(
+    path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
     `
   console.log('leaf hmr');
-  `, (err) => {
+  `,
+    (err) => {
       if (err) throw err;
       hmrLeafStart = Date.now();
-  })
+    }
+  );
 
   // const hmrLeafStart = Date.now();
   // appendFileSync(
@@ -263,6 +274,12 @@ const buildCommandTools = [
     skip: true,
   },
   {
+    name: "Vite 4.4.2",
+    command: "build:vite",
+    regex: /built in (\d+\.\d+)/,
+    skip: true,
+  },
+  {
     name: "Turbopack 13.4.9 ",
     command: "build:turbopack",
     regex: /Creating an optimized/,
@@ -271,13 +288,7 @@ const buildCommandTools = [
   {
     name: "Webpack(babel) 5.88.0",
     command: "build:webpack",
-    regex: /webpack build/,
-    skip: true,
-  },
-  {
-    name: "Vite 4.4.2",
-    command: "build:vite",
-    regex: /built in (\d+)/,
+    regex: /in (\d+) ms/,
     skip: true,
   },
 ];
@@ -290,11 +301,13 @@ async function runBuildCommand(buildCommandTool) {
     stdio: ["pipe"],
     shell: true,
   });
+  if (!buildCommandTool.skip) {
+    startTime = performance.now();
+  }
   child.stdout.on("data", (data) => {
-    if (!buildCommandTool.skip) {
-      startTime = performance.now();
-    }
+    // console.log(data.toString());
     const match = buildCommandTool.regex.exec(data.toString());
+    // console.log(match);
     if (match !== null && match[1] && buildCommandTool.skip) {
       const time = match[1];
       skipTime = time;
@@ -310,9 +323,9 @@ async function runBuildCommand(buildCommandTool) {
   return buildCommandTool.skip ? `${skipTime}ms` : `${elapsedTime}ms`;
 }
 
-// (async () => {
-//   for (const buildCommandTool of buildCommandTools) {
-//     console.warn(await runBuildCommand(buildCommandTool));
-//   }
-//   process.exit();
-// })();
+(async () => {
+  for (const buildCommandTool of buildCommandTools) {
+    console.warn(await runBuildCommand(buildCommandTool));
+  }
+  process.exit();
+})();
