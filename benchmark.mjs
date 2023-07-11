@@ -25,12 +25,12 @@ class BuildTool {
 
   async startServer() {
     return new Promise((resolve, reject) => {
-      const start = Date.now();
       const child = spawn(`npm`, ["run", this.script], {
         stdio: "pipe",
         shell: true,
       });
       this.child = child;
+      const start = Date.now();
 
       child.stdout.on("data", (data) => {
         // console.log(data.toString());
@@ -61,7 +61,7 @@ class BuildTool {
     kill(this.child.pid);
   }
 
-  async bundle() {
+  async build() {
     return new Promise(async (resolve) => {
       console.log(`Running build command: ${this.buildScript}`);
       let startTime = null;
@@ -87,7 +87,7 @@ class BuildTool {
           }
           const endTime = performance.now();
           const elapsedTime = Math.floor(endTime - startTime);
-          resolve(this.skipMatch ? `${skipTime}` : `${elapsedTime}`);
+          resolve(this.skipMatch ? skipTime : elapsedTime);
         }
       });
       await new Promise((resolve, reject) => {
@@ -96,7 +96,7 @@ class BuildTool {
       });
       const endTime = performance.now();
       const elapsedTime = Math.floor(endTime - startTime);
-      resolve(this.skipMatch ? `${skipTime}` : `${elapsedTime}`);
+      resolve(this.skipMatch ? skipTime : elapsedTime);
     });
   }
 }
@@ -150,7 +150,7 @@ const buildTools = [
 
 const browser = await puppeteer.launch();
 
-const n = 1;
+const n = 3;
 
 console.log("Running benchmark " + n + " times, please wait...");
 
@@ -162,11 +162,6 @@ for (let i = 0; i < n; i++) {
 
 async function runBenchmark() {
   const results = {};
-
-  let waitResolve = null;
-  const waitPromise = new Promise((resolve) => {
-    waitResolve = resolve;
-  });
 
   for (const buildTool of buildTools) {
     const time = await buildTool.startServer();
@@ -192,32 +187,32 @@ async function runBenchmark() {
     });
 
     // console.log("Navigating to", `http://localhost:${buildTool.port}`);
-    await page.goto(`http://localhost:${buildTool.port}`);
+    await page.goto(`http://localhost:${buildTool.port}`, {
+      timeout: 60000,
+    });
+
+    let waitResolve = null;
+    const waitPromise = new Promise((resolve) => {
+      waitResolve = resolve;
+    });
+
+    let hmrRootStart = -1;
+    let hmrLeafStart = -1;
+
     page.on("console", (event) => {
       const isFinished = () => {
-        for (const result of Object.values(results)) {
-          if (!result.rootHmr || !result.leafHmr) {
-            return false;
-          }
-        }
-
-        return true;
+        return results[buildTool.name].rootHmr && results[buildTool.name].leafHmr;
       };
       if (event.text().includes("root hmr")) {
-        const hmrTime = Date.now() - hmrRootStart;
+        const clientDateNow = /(\d+)/.exec(event.text())[1];
+        const hmrTime = clientDateNow - hmrRootStart;
         console.log(buildTool.name, " Root HMR time: " + hmrTime + "ms");
 
         results[buildTool.name].rootHmr = hmrTime;
 
         if (isFinished()) {
-          waitResolve();
-        }
-
-        if (
-          results[buildTool.name].rootHmr &&
-          results[buildTool.name].leafHmr
-        ) {
           page.close();
+          waitResolve();
         }
       } else if (event.text().includes("leaf hmr")) {
         const hmrTime = Date.now() - hmrLeafStart;
@@ -226,91 +221,80 @@ async function runBenchmark() {
         results[buildTool.name].leafHmr = hmrTime;
 
         if (isFinished()) {
-          waitResolve();
-        }
-
-        if (
-          results[buildTool.name].rootHmr &&
-          results[buildTool.name].leafHmr
-        ) {
           page.close();
+          waitResolve();
         }
       }
     });
-  }
 
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  const originalRootFileContent = readFileSync(
-    path.resolve("src", "comps", "triangle.jsx"),
-    "utf-8"
-  );
-  let hmrRootStart = -1;
-  appendFile(
-    path.resolve("src", "comps", "triangle.jsx"),
-    `
-console.log('root hmr');
-`,
-    (err) => {
-      if (err) throw err;
-      hmrRootStart = Date.now();
-    }
-  );
-  //   appendFileSync(
-  //     path.resolve("src", "comps", "triangle.jsx"),
-  //     `
-  //   console.log('root hmr');
-  // `
-  //   );
+    const originalRootFileContent = readFileSync(
+      path.resolve("src", "comps", "triangle.jsx"),
+      "utf-8"
+    );
 
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  const originalLeafFileContent = readFileSync(
-    path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
-    "utf-8"
-  );
-  let hmrLeafStart = -1;
-  appendFile(
-    path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
-    `
-  console.log('leaf hmr');
+    appendFile(
+      path.resolve("src", "comps", "triangle.jsx"),
+      `
+  console.log('root hmr', Date.now());
   `,
-    (err) => {
-      if (err) throw err;
-      hmrLeafStart = Date.now();
-    }
-  );
+      (err) => {
+        if (err) throw err;
+        hmrRootStart = Date.now();
+      }
+    );
+    //   appendFileSync(
+    //     path.resolve("src", "comps", "triangle.jsx"),
+    //     `
+    //   console.log('root hmr');
+    // `
+    //   );
 
-  // const hmrLeafStart = Date.now();
-  // appendFileSync(
-  //   path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
-  //   `
-  //   console.log('leaf hmr');
-  // `
-  // );
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
-  await waitPromise;
+    const originalLeafFileContent = readFileSync(
+      path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
+      "utf-8"
+    );
+    appendFile(
+      path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
+      `
+    console.log('leaf hmr', Date.now());
+    `,
+      (err) => {
+        if (err) throw err;
+        hmrLeafStart = Date.now();
+      }
+    );
 
-  // restore files
-  writeFileSync(
-    path.resolve("src", "comps", "triangle.jsx"),
-    originalRootFileContent
-  );
-  writeFileSync(
-    path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
-    originalLeafFileContent
-  );
+    // const hmrLeafStart = Date.now();
+    // appendFileSync(
+    //   path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
+    //   `
+    //   console.log('leaf hmr');
+    // `
+    // );
 
-  for (const buildTool of buildTools) {
+    await waitPromise;
+    // restore files
+    writeFileSync(
+      path.resolve("src", "comps", "triangle.jsx"),
+      originalRootFileContent
+    );
+    writeFileSync(
+      path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
+      originalLeafFileContent
+    );
+
     buildTool.stopServer();
-  }
 
-  await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
-  for (const buildTool of buildTools) {
-    const time = await buildTool.bundle();
-    console.log(buildTool.name, ": build time: " + time + "ms");
-    results[buildTool.name].buildTime = time;
+    const buildTime = await buildTool.build();
+    console.log(buildTool.name, ": build time: " + buildTime + "ms");
+    results[buildTool.name].buildTime = buildTime;
+    await new Promise((resolve) => setTimeout(resolve, 500));
   }
 
   totalResults.push(results);
@@ -318,7 +302,7 @@ console.log('root hmr');
 
 // average results
 const averageResults = {};
-console.log(totalResults);
+// console.log(totalResults);
 for (const result of totalResults) {
   for (const [name, values] of Object.entries(result)) {
     if (!averageResults[name]) {
@@ -330,14 +314,14 @@ for (const result of totalResults) {
         averageResults[name][key] = 0;
       }
 
-      averageResults[name][key] += value;
+      averageResults[name][key] += Number(value);
     }
   }
 }
 
 for (const [name, values] of Object.entries(averageResults)) {
   for (const [key, value] of Object.entries(values)) {
-    averageResults[name][key] = value / totalResults.length + "ms";
+    averageResults[name][key] = Math.floor(value / totalResults.length) + "ms";
   }
 }
 
