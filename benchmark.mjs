@@ -76,7 +76,7 @@ class BuildTool {
       child.stdout.on("data", (data) => {
         // console.log(data.toString());
         const match = this.buildRegex.exec(data.toString());
-        console.log(match);
+        // console.log(match);
         if (match !== null && match[1] && this.skipMatch) {
           const time = match[1];
           const unit = match[2];
