@@ -3,7 +3,6 @@ import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
 import path from "path";
 import playwright from "playwright";
 import kill from "tree-kill";
-
 const originalRootFileContent = readFileSync(
   path.resolve("src", "comps", "triangle.jsx"),
   "utf-8"
@@ -16,6 +15,7 @@ const originalLeafFileContent = readFileSync(
 
 const rootFilePath = path.resolve("src", "comps", "triangle.jsx");
 const leafFilePath = path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx");
+
 class BuildTool {
   constructor(
     name,
@@ -128,9 +128,9 @@ const buildTools = [
     "Rspack 0.2.5",
     8080,
     "start:rspack",
-    /Time: (.+)ms/,
+    /in (.+)ms/,
     "build:rspack",
-    /Time: (\d+)(s|ms)/,
+    /in (.+) (s|ms)/,
     true
   ),
   // new BuildTool(
@@ -180,8 +180,9 @@ async function runBenchmark() {
     await new Promise((resolve) => setTimeout(resolve, 500));
     // loading
     const loadPromise = page.waitForEvent("load");
-    const serverStartTime = await buildTool.startServer();
     const pageLoadStart = Date.now();
+    const serverStartTime = await buildTool.startServer();
+    console.log(serverStartTime, "serverStartTime");
     page.goto(`http://localhost:${buildTool.port}`);
     await loadPromise;
     const loadTime = Date.now() - pageLoadStart;
@@ -206,6 +207,7 @@ async function runBenchmark() {
     const hmrRootStart = Date.now();
     await rootConsolePromise;
     results[buildTool.name].rootHmr = Date.now() - hmrRootStart;
+    console.log("root hmr", Date.now() - hmrRootStart);
     await new Promise((resolve) => setTimeout(resolve, 500));
 
     const leafConsolePromise = page.waitForEvent("console", {
@@ -220,6 +222,7 @@ async function runBenchmark() {
     const hmrLeafStart = Date.now();
     await leafConsolePromise;
     results[buildTool.name].leafHmr = Date.now() - hmrLeafStart;
+    console.log("leaf hmr", Date.now() - hmrLeafStart);
     // restore files
     writeFileSync(
       path.resolve("src", "comps", "triangle.jsx"),
