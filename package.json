@@ -4,7 +4,6 @@
   "dependencies": {
     "clsx": "^1.2.1",
     "playwright": "^1.36.0",
-    "puppeteer": "^19.7.4",
     "react": "18",
     "react-dom": "18",
     "tree-kill": "^1.2.2"
@@ -18,7 +17,7 @@
     "@farmfe/core": "^0.10.3",
     "@farmfe/plugin-react": "^0.2.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",
-    "@rspack/cli": "^0.2.5",
+    "@rspack/cli": "^0.2.6",
     "@types/react": "18",
     "@types/react-dom": "18",
     "@vitejs/plugin-react": "^4.0.1",
@@ -31,7 +30,7 @@
     "parcel": "^2.9.3",
     "react-refresh": "^0.14.0",
     "style-loader": "^3.3.1",
-    "vite": "^4.4.2",
+    "vite": "^4.4.3",
     "webpack": "^5.88.1",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1"
