@@ -3,6 +3,7 @@ import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
 import path from "path";
 import playwright from "playwright";
 import kill from "tree-kill";
+
 const originalRootFileContent = readFileSync(
   path.resolve("src", "comps", "triangle.jsx"),
   "utf-8"
@@ -15,7 +16,6 @@ const originalLeafFileContent = readFileSync(
 
 const rootFilePath = path.resolve("src", "comps", "triangle.jsx");
 const leafFilePath = path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx");
-
 class BuildTool {
   constructor(
     name,
