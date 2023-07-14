@@ -1,8 +1,20 @@
 import { spawn } from "child_process";
-import { appendFile, readFileSync, writeFileSync } from "fs";
+import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
 import path from "path";
-import puppeteer from "puppeteer";
+import playwright from "playwright";
 import kill from "tree-kill";
+const originalRootFileContent = readFileSync(
+  path.resolve("src", "comps", "triangle.jsx"),
+  "utf-8"
+);
+
+const originalLeafFileContent = readFileSync(
+  path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
+  "utf-8"
+);
+
+const rootFilePath = path.resolve("src", "comps", "triangle.jsx");
+const leafFilePath = path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx");
 
 class BuildTool {
   constructor(
@@ -33,12 +45,13 @@ class BuildTool {
       const start = Date.now();
 
       child.stdout.on("data", (data) => {
-        // console.log(data.toString());
         const match = this.startedRegex.exec(data.toString());
-
-        if (match) {
-          const time = Date.now() - start;
-          resolve(time);
+        // if (match) {
+        //   const time = Date.now() - start;
+        //   resolve(time);
+        // }
+        if (match && match[1]) {
+          resolve(match[1] ? Number(match[1]) : null);
         }
       });
       child.on("error", (error) => {
@@ -55,10 +68,12 @@ class BuildTool {
   }
 
   stopServer() {
-    this.child.stdin.pause();
-    this.child.stdout.destroy();
-    this.child.stderr.destroy();
-    kill(this.child.pid);
+    if (this.child) {
+      this.child.stdin.pause();
+      this.child.stdout.destroy();
+      this.child.stderr.destroy();
+      kill(this.child.pid);
+    }
   }
 
   async build() {
@@ -74,9 +89,7 @@ class BuildTool {
         startTime = performance.now();
       }
       child.stdout.on("data", (data) => {
-        // console.log(data.toString());
         const match = this.buildRegex.exec(data.toString());
-        // console.log(match);
         if (match !== null && match[1] && this.skipMatch) {
           const time = match[1];
           const unit = match[2];
@@ -120,37 +133,37 @@ const buildTools = [
     /Time: (\d+)(s|ms)/,
     true
   ),
-  new BuildTool(
-    "Vite 4.4.2",
-    5173,
-    "start:vite",
-    /ready in (.+) ms/,
-    "build:vite",
-    /built in (\d+\.\d+)(s|ms)/,
-    true
-  ),
-  new BuildTool(
-    "Turbopack 13.4.9 ",
-    3000,
-    "start:turbopack",
-    /started server on/,
-    "build:turbopack",
-    /Creating an optimized/,
-    false
-  ),
-  new BuildTool(
-    "Webpack(babel) 5.88.0",
-    8081,
-    "start:webpack",
-    /compiled .+ in (.+) ms/,
-    "build:webpack",
-    /in (\d+) ms/
-  ),
+  // new BuildTool(
+  //   "Vite 4.4.2",
+  //   5173,
+  //   "start:vite",
+  //   /ready in (.+) ms/,
+  //   "build:vite",
+  //   /built in (\d+\.\d+)(s|ms)/,
+  //   true
+  // ),
+  // new BuildTool(
+  //   "Turbopack 13.4.9 ",
+  //   3000,
+  //   "start:turbopack",
+  //   /started server on/,
+  //   "build:turbopack",
+  //   /Creating an optimized/,
+  //   false
+  // ),
+  // new BuildTool(
+  //   "Webpack(babel) 5.88.0",
+  //   8081,
+  //   "start:webpack",
+  //   /compiled .+ in (.+) ms/,
+  //   "build:webpack",
+  //   /in (\d+) ms/
+  // ),
 ];
 
-const browser = await puppeteer.launch();
-
-const n = 3;
+// const browser = await puppeteer.launch();
+const browser = await playwright.chromium.launch();
+const n = 1;
 
 console.log("Running benchmark " + n + " times, please wait...");
 
@@ -162,121 +175,51 @@ for (let i = 0; i < n; i++) {
 
 async function runBenchmark() {
   const results = {};
-
   for (const buildTool of buildTools) {
-    const time = await buildTool.startServer();
-    // console.log(time);
-    const page = await browser.newPage();
-    const start = Date.now();
-
-    page.on("load", () => {
-      const loadTime = Date.now() - start;
-      console.log(
-        buildTool.name,
-        ": startup time: " + (time + loadTime) + "ms"
-      );
-
-      if (!results[buildTool.name]) {
-        results[buildTool.name] = {};
-      }
-
-      results[buildTool.name]["startup(serverStartTime + onLoadTime)"] =
-        time + loadTime;
-      results[buildTool.name].serverStartTime = time;
-      results[buildTool.name].onLoadTime = loadTime;
-    });
-
-    // console.log("Navigating to", `http://localhost:${buildTool.port}`);
-    await page.goto(`http://localhost:${buildTool.port}`, {
-      timeout: 60000,
-    });
-
-    let waitResolve = null;
-    const waitPromise = new Promise((resolve) => {
-      waitResolve = resolve;
-    });
-
-    let hmrRootStart = -1;
-    let hmrLeafStart = -1;
-
-    page.on("console", (event) => {
-      const isFinished = () => {
-        return results[buildTool.name].rootHmr && results[buildTool.name].leafHmr;
-      };
-      if (event.text().includes("root hmr")) {
-        const clientDateNow = /(\d+)/.exec(event.text())[1];
-        const hmrTime = clientDateNow - hmrRootStart;
-        console.log(buildTool.name, " Root HMR time: " + hmrTime + "ms");
-
-        results[buildTool.name].rootHmr = hmrTime;
-
-        if (isFinished()) {
-          page.close();
-          waitResolve();
-        }
-      } else if (event.text().includes("leaf hmr")) {
-        const hmrTime = Date.now() - hmrLeafStart;
-        console.log(buildTool.name, " Leaf HMR time: " + hmrTime + "ms");
-
-        results[buildTool.name].leafHmr = hmrTime;
-
-        if (isFinished()) {
-          page.close();
-          waitResolve();
-        }
-      }
-    });
+    const page = await (await browser.newContext()).newPage();
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    // loading
+    const loadPromise = page.waitForEvent("load");
+    const serverStartTime = await buildTool.startServer();
+    const pageLoadStart = Date.now();
+    page.goto(`http://localhost:${buildTool.port}`);
+    await loadPromise;
+    const loadTime = Date.now() - pageLoadStart;
+    if (!results[buildTool.name]) {
+      results[buildTool.name] = {};
+    }
+    results[buildTool.name]["startup(serverStartTime + onLoadTime)"] =
+      serverStartTime + loadTime;
+    results[buildTool.name].serverStartTime = serverStartTime;
+    results[buildTool.name].onLoadTime = loadTime;
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    const originalRootFileContent = readFileSync(
-      path.resolve("src", "comps", "triangle.jsx"),
-      "utf-8"
-    );
-
-    appendFile(
-      path.resolve("src", "comps", "triangle.jsx"),
+    const rootConsolePromise = page.waitForEvent("console", {
+      predicate: (e) => e.text().includes("root hmr"),
+    });
+    appendFileSync(
+      rootFilePath,
       `
-  console.log('root hmr', Date.now());
-  `,
-      (err) => {
-        if (err) throw err;
-        hmrRootStart = Date.now();
-      }
+      console.log('root hmr');
+    `
     );
-    //   appendFileSync(
-    //     path.resolve("src", "comps", "triangle.jsx"),
-    //     `
-    //   console.log('root hmr');
-    // `
-    //   );
+    const hmrRootStart = Date.now();
+    await rootConsolePromise;
+    results[buildTool.name].rootHmr = Date.now() - hmrRootStart;
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    const originalLeafFileContent = readFileSync(
-      path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
-      "utf-8"
-    );
-    appendFile(
-      path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
+    const leafConsolePromise = page.waitForEvent("console", {
+      predicate: (e) => e.text().includes("leaf hmr"),
+    });
+    appendFileSync(
+      leafFilePath,
       `
-    console.log('leaf hmr', Date.now());
-    `,
-      (err) => {
-        if (err) throw err;
-        hmrLeafStart = Date.now();
-      }
+      console.log('leaf hmr');
+    `
     );
-
-    // const hmrLeafStart = Date.now();
-    // appendFileSync(
-    //   path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
-    //   `
-    //   console.log('leaf hmr');
-    // `
-    // );
-
-    await waitPromise;
+    const hmrLeafStart = Date.now();
+    await leafConsolePromise;
+    results[buildTool.name].leafHmr = Date.now() - hmrLeafStart;
     // restore files
     writeFileSync(
       path.resolve("src", "comps", "triangle.jsx"),
@@ -296,6 +239,7 @@ async function runBenchmark() {
     results[buildTool.name].buildTime = buildTime;
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
+  await browser.close();
 
   totalResults.push(results);
 }
@@ -327,78 +271,3 @@ for (const [name, values] of Object.entries(averageResults)) {
 
 console.log("average results of " + totalResults.length + " runs:");
 console.table(averageResults);
-
-// const buildCommandTools = [
-//   {
-//     name: "Farm 0.10.3",
-//     command: "build",
-//     regex: /in (\d+)/,
-//     skip: true,
-//   },
-//   {
-//     name: "Rspack 0.2.5",
-//     command: "build:rspack",
-//     regex: /Time: (\d+)(s|ms)/,
-//     skip: true,
-//   },
-//   {
-//     name: "Vite 4.4.2",
-//     command: "build:vite",
-//     regex: /built in (\d+\.\d+)(s|ms)/,
-//     skip: true,
-//   },
-//   {
-//     name: "Turbopack 13.4.9 ",
-//     command: "build:turbopack",
-//     regex: /Creating an optimized/,
-//     skip: false,
-//   },
-//   {
-//     name: "Webpack(babel) 5.88.0",
-//     command: "build:webpack",
-//     regex: /in (\d+) ms/,
-//     skip: true,
-//   },
-// ];
-
-// async function runBuildCommand(buildCommandTool) {
-//   console.log(`Running build command: ${buildCommandTool.command}`);
-//   let startTime = null;
-//   let skipTime = null;
-//   const child = spawn(`npm`, ["run", buildCommandTool.command], {
-//     stdio: ["pipe"],
-//     shell: true,
-//   });
-//   if (!buildCommandTool.skip) {
-//     startTime = performance.now();
-//   }
-//   child.stdout.on("data", (data) => {
-//     // console.log(data.toString());
-//     const match = buildCommandTool.regex.exec(data.toString());
-//     // console.log(match);
-//     if (match !== null && match[1] && buildCommandTool.skip) {
-//       const time = match[1];
-//       const unit = match[2];
-//       if (unit === "s") {
-//         skipTime = time * 1000;
-//       } else {
-//         skipTime = time;
-//       }
-//     }
-//   });
-//   await new Promise((resolve, reject) => {
-//     child.on("exit", resolve);
-//     child.on("error", reject);
-//   });
-//   const endTime = performance.now();
-//   console.log(`Finished build command: ${buildCommandTool.command}`);
-//   const elapsedTime = Math.floor(endTime - startTime);
-//   return buildCommandTool.skip ? `${skipTime}ms` : `${elapsedTime}ms`;
-// }
-
-// (async () => {
-//   for (const buildCommandTool of buildCommandTools) {
-//     console.warn(await runBuildCommand(buildCommandTool));
-//   }
-//   process.exit();
-// })();
