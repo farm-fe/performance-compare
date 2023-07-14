@@ -116,7 +116,7 @@ class BuildTool {
 
 const buildTools = [
   new BuildTool(
-    "Farm 0.10.3",
+    "Farm 0.10.4",
     9000,
     "start",
     /Ready on (?:.+) in (.+)ms/,
@@ -125,7 +125,7 @@ const buildTools = [
     true
   ),
   new BuildTool(
-    "Rspack 0.2.5",
+    "Rspack 0.2.7",
     8080,
     "start:rspack",
     /in (.+)ms/,
@@ -182,7 +182,7 @@ async function runBenchmark() {
     const loadPromise = page.waitForEvent("load");
     const pageLoadStart = Date.now();
     const serverStartTime = await buildTool.startServer();
-    console.log(serverStartTime, "serverStartTime");
+    console.log(buildTool.name, ": StartTime: " + serverStartTime + "ms");
     page.goto(`http://localhost:${buildTool.port}`);
     await loadPromise;
     const loadTime = Date.now() - pageLoadStart;
@@ -195,13 +195,18 @@ async function runBenchmark() {
     results[buildTool.name].onLoadTime = loadTime;
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
+
     const rootConsolePromise = page.waitForEvent("console", {
       predicate: (e) => e.text().includes("root hmr"),
     });
+    const leafConsolePromise = page.waitForEvent("console", {
+      predicate: (e) => e.text().includes("leaf hmr"),
+    });
+
     appendFileSync(
       rootFilePath,
       `
-      console.log('root hmr');
+      console.log('root hmr', Date.now());
     `
     );
     const hmrRootStart = Date.now();
@@ -210,13 +215,10 @@ async function runBenchmark() {
     console.log("root hmr", Date.now() - hmrRootStart);
     await new Promise((resolve) => setTimeout(resolve, 500));
 
-    const leafConsolePromise = page.waitForEvent("console", {
-      predicate: (e) => e.text().includes("leaf hmr"),
-    });
     appendFileSync(
       leafFilePath,
       `
-      console.log('leaf hmr');
+      console.log('leaf hmr', Date.now());
     `
     );
     const hmrLeafStart = Date.now();
@@ -224,6 +226,8 @@ async function runBenchmark() {
     results[buildTool.name].leafHmr = Date.now() - hmrLeafStart;
     console.log("leaf hmr", Date.now() - hmrLeafStart);
     // restore files
+    buildTool.stopServer();
+    await page.close();
     writeFileSync(
       path.resolve("src", "comps", "triangle.jsx"),
       originalRootFileContent
@@ -233,9 +237,7 @@ async function runBenchmark() {
       originalLeafFileContent
     );
 
-    buildTool.stopServer();
-
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const buildTime = await buildTool.build();
     console.log(buildTool.name, ": build time: " + buildTime + "ms");
