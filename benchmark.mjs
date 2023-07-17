@@ -24,7 +24,8 @@ class BuildTool {
     startedRegex,
     buildScript,
     buildRegex,
-    skipMatch
+    skipMatch,
+    startMatchReg
   ) {
     this.name = name;
     this.port = port;
@@ -33,6 +34,7 @@ class BuildTool {
     this.buildScript = buildScript;
     this.buildRegex = buildRegex;
     this.skipMatch = skipMatch;
+    this.startMatchReg = startMatchReg;
   }
 
   async startServer() {
@@ -42,16 +44,19 @@ class BuildTool {
         shell: true,
       });
       this.child = child;
-      const start = Date.now();
-
+      let skipStartTime = Date.now();
       child.stdout.on("data", (data) => {
         const match = this.startedRegex.exec(data.toString());
-        // if (match) {
-        //   const time = Date.now() - start;
-        //   resolve(time);
-        // }
-        if (match && match[1]) {
-          resolve(match[1] ? Number(match[1]) : null);
+        if (!this.skipMatch && this.startMatchReg) {
+          const skipMatchReg = this.startMatchReg.exec(data.toString());
+          if (skipMatchReg) {
+            resolve(Date.now() - skipStartTime);
+          }
+          skipStartTime = Date.now();
+        } else {
+          if (match && match[1]) {
+            resolve(match[1] ? Number(match[1]) : null);
+          }
         }
       });
       child.on("error", (error) => {
@@ -134,31 +139,32 @@ const buildTools = [
     true
   ),
   // new BuildTool(
-  //   "Vite 4.4.2",
+  //   "Vite 4.4.3",
   //   5173,
   //   "start:vite",
-  //   /ready in (.+) ms/,
+  //   /ready in (\d+) ms/,
   //   "build:vite",
   //   /built in (\d+\.\d+)(s|ms)/,
   //   true
   // ),
-  // new BuildTool(
-  //   "Turbopack 13.4.9 ",
-  //   3000,
-  //   "start:turbopack",
-  //   /started server on/,
-  //   "build:turbopack",
-  //   /Creating an optimized/,
-  //   false
-  // ),
-  // new BuildTool(
-  //   "Webpack(babel) 5.88.0",
-  //   8081,
-  //   "start:webpack",
-  //   /compiled .+ in (.+) ms/,
-  //   "build:webpack",
-  //   /in (\d+) ms/
-  // ),
+  new BuildTool(
+    "Turbopack 13.4.9 ",
+    3000,
+    "start:turbopack",
+    /started server on/,
+    "build:turbopack",
+    /Creating an optimized/,
+    false,
+    />>> TURBOPACK/
+  ),
+  new BuildTool(
+    "Webpack(babel) 5.88.0",
+    8081,
+    "start:webpack",
+    /compiled .+ in (.+) ms/,
+    "build:webpack",
+    /in (\d+) ms/
+  ),
 ];
 
 // const browser = await puppeteer.launch();
