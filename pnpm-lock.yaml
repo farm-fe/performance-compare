@@ -38,7 +38,7 @@ devDependencies:
     specifier: ^0.5.5
     version: 0.5.5
   '@farmfe/core':
-    specifier: ^0.10.4
+    specifier: 0.10.4
     version: 0.10.4
   '@farmfe/plugin-react':
     specifier: ^0.2.0
@@ -47,7 +47,7 @@ devDependencies:
     specifier: ^0.5.10
     version: 0.5.10(react-refresh@0.14.0)(webpack-dev-server@4.15.1)(webpack@5.88.1)
   '@rspack/cli':
-    specifier: ^0.2.7
+    specifier: 0.2.7
     version: 0.2.7(esbuild@0.18.11)(react-refresh@0.14.0)(webpack-cli@5.1.4)(webpack-dev-server@4.15.1)(webpack@5.88.1)
   '@types/react':
     specifier: '18'
@@ -74,7 +74,7 @@ devDependencies:
     specifier: ^5.5.0
     version: 5.5.0(webpack@5.88.1)
   next:
-    specifier: ^13.4.9
+    specifier: 13.4.9
     version: 13.4.9(@babel/core@7.21.0)(react-dom@18.2.0)(react@18.2.0)
   parcel:
     specifier: ^2.9.3
@@ -86,7 +86,7 @@ devDependencies:
     specifier: ^3.3.1
     version: 3.3.1(webpack@5.88.1)
   vite:
-    specifier: ^4.4.3
+    specifier: 4.4.3
     version: 4.4.3
   webpack:
     specifier: ^5.88.1
@@ -2143,7 +2143,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: true
     optional: true
@@ -2153,7 +2152,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: true
     optional: true
@@ -2163,7 +2161,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: true
     optional: true
@@ -2173,7 +2170,6 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [musl]
     requiresBuild: true
     dev: true
     optional: true

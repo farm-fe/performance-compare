@@ -43,6 +43,7 @@ class BuildTool {
         stdio: "pipe",
         shell: true,
       });
+
       this.child = child;
       let skipStartTime = Date.now();
       child.stdout.on("data", (data) => {
@@ -120,33 +121,33 @@ class BuildTool {
 }
 
 const buildTools = [
-  // new BuildTool(
-  //   "Farm 0.10.4",
-  //   9000,
-  //   "start",
-  //   /Ready on (?:.+) in (.+)ms/,
-  //   "build",
-  //   /in (\d+)/,
-  //   true
-  // ),
-  // new BuildTool(
-  //   "Rspack 0.2.7",
-  //   8080,
-  //   "start:rspack",
-  //   /in (.+)ms/,
-  //   "build:rspack",
-  //   /in (.+) (s|ms)/,
-  //   true
-  // ),
-  // new BuildTool(
-  //   "Vite 4.4.3",
-  //   5173,
-  //   "start:vite",
-  //   /ready in (\d+) ms/,
-  //   "build:vite",
-  //   /built in (\d+\.\d+)(s|ms)/,
-  //   true
-  // ),
+  new BuildTool(
+    "Farm 0.10.4",
+    9000,
+    "start",
+    /Ready on (?:.+) in (.+)ms/,
+    "build",
+    /in (\d+)/,
+    true
+  ),
+  new BuildTool(
+    "Rspack 0.2.7",
+    8080,
+    "start:rspack",
+    /in (.+)ms/,
+    "build:rspack",
+    /in (.+) (s|ms)/,
+    true
+  ),
+  new BuildTool(
+    "Vite 4.4.3",
+    5173,
+    "start:vite",
+    /ready in (\d+) ms/,
+    "build:vite",
+    /built in (\d+\.\d+)(s|ms)/,
+    true
+  ),
   new BuildTool(
     "Turbopack 13.4.9 ",
     3000,
@@ -155,16 +156,16 @@ const buildTools = [
     "build:turbopack",
     /Creating an optimized/,
     false,
-    />>> TURBOPACK/
+    /TURBOPACK/
   ),
-  // new BuildTool(
-  //   "Webpack(babel) 5.88.0",
-  //   8081,
-  //   "start:webpack",
-  //   /compiled .+ in (.+) ms/,
-  //   "build:webpack",
-  //   /in (\d+) ms/
-  // ),
+  new BuildTool(
+    "Webpack(babel) 5.88.0",
+    8081,
+    "start:webpack",
+    /compiled .+ in (.+) ms/,
+    "build:webpack",
+    /in (\d+) ms/
+  ),
 ];
 
 // const browser = await puppeteer.launch();
@@ -191,6 +192,7 @@ async function runBenchmark() {
     const pageLoadStart = Date.now();
     const serverStartTime = await buildTool.startServer();
     console.log(buildTool.name, ": StartTime: " + serverStartTime + "ms");
+    console.log("goto", `http://localhost:${buildTool.port}`);
     page.goto(`http://localhost:${buildTool.port}`);
     await loadPromise;
     const loadTime = Date.now() - pageLoadStart;
