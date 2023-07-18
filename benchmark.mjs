@@ -47,12 +47,12 @@ class BuildTool {
       let skipStartTime = Date.now();
       child.stdout.on("data", (data) => {
         const match = this.startedRegex.exec(data.toString());
+        // bench turbopack starttime with node server start time util ">>> TURBOPACK"
         if (!this.skipMatch && this.startMatchReg) {
           const skipMatchReg = this.startMatchReg.exec(data.toString());
           if (skipMatchReg) {
             resolve(Date.now() - skipStartTime);
           }
-          skipStartTime = Date.now();
         } else {
           if (match && match[1]) {
             resolve(match[1] ? Number(match[1]) : null);
@@ -120,24 +120,24 @@ class BuildTool {
 }
 
 const buildTools = [
-  new BuildTool(
-    "Farm 0.10.4",
-    9000,
-    "start",
-    /Ready on (?:.+) in (.+)ms/,
-    "build",
-    /in (\d+)/,
-    true
-  ),
-  new BuildTool(
-    "Rspack 0.2.7",
-    8080,
-    "start:rspack",
-    /in (.+)ms/,
-    "build:rspack",
-    /in (.+) (s|ms)/,
-    true
-  ),
+  // new BuildTool(
+  //   "Farm 0.10.4",
+  //   9000,
+  //   "start",
+  //   /Ready on (?:.+) in (.+)ms/,
+  //   "build",
+  //   /in (\d+)/,
+  //   true
+  // ),
+  // new BuildTool(
+  //   "Rspack 0.2.7",
+  //   8080,
+  //   "start:rspack",
+  //   /in (.+)ms/,
+  //   "build:rspack",
+  //   /in (.+) (s|ms)/,
+  //   true
+  // ),
   // new BuildTool(
   //   "Vite 4.4.3",
   //   5173,
@@ -157,14 +157,14 @@ const buildTools = [
     false,
     />>> TURBOPACK/
   ),
-  new BuildTool(
-    "Webpack(babel) 5.88.0",
-    8081,
-    "start:webpack",
-    /compiled .+ in (.+) ms/,
-    "build:webpack",
-    /in (\d+) ms/
-  ),
+  // new BuildTool(
+  //   "Webpack(babel) 5.88.0",
+  //   8081,
+  //   "start:webpack",
+  //   /compiled .+ in (.+) ms/,
+  //   "build:webpack",
+  //   /in (\d+) ms/
+  // ),
 ];
 
 // const browser = await puppeteer.launch();
@@ -185,7 +185,9 @@ async function runBenchmark() {
     const page = await (await browser.newContext()).newPage();
     await new Promise((resolve) => setTimeout(resolve, 500));
     // loading
-    const loadPromise = page.waitForEvent("load");
+    const loadPromise = page.waitForEvent("load", {
+      timeout: 60000,
+    });
     const pageLoadStart = Date.now();
     const serverStartTime = await buildTool.startServer();
     console.log(buildTool.name, ": StartTime: " + serverStartTime + "ms");
