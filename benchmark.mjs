@@ -381,8 +381,8 @@ async function runBenchmark() {
 
     buildTool.stopServer();
 
-    console.log("close Server");
     await new Promise((resolve) => setTimeout(resolve, 500));
+    console.log("close Server");
     console.log("prepare build");
     const buildTime = await buildTool.build();
     console.log(buildTool.name, ": build time: " + buildTime + "ms");
