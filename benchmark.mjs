@@ -206,7 +206,7 @@ class BuildTool {
 
 const buildTools = [
   new BuildTool(
-    "Farm 0.10.4",
+    "Farm 0.10.5",
     9000,
     "start",
     /Ready on (?:.+) in (.+)ms/,
@@ -215,7 +215,7 @@ const buildTools = [
     true
   ),
   new BuildTool(
-    "Rspack 0.2.7",
+    "Rspack 0.2.8",
     8080,
     "start:rspack",
     /in (.+)ms/,
@@ -269,7 +269,6 @@ async function runBenchmark() {
 
   for (const buildTool of buildTools) {
     const time = await buildTool.startServer();
-    console.log("startTime", time);
     const page = await browser.newPage();
     const start = Date.now();
     // await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -395,7 +394,7 @@ async function runBenchmark() {
 
 // average results
 const averageResults = {};
-// console.log(totalResults);
+
 for (const result of totalResults) {
   for (const [name, values] of Object.entries(result)) {
     if (!averageResults[name]) {
@@ -420,78 +419,3 @@ for (const [name, values] of Object.entries(averageResults)) {
 
 console.log("average results of " + totalResults.length + " runs:");
 console.table(averageResults);
-
-// const buildCommandTools = [
-//   {
-//     name: "Farm 0.10.3",
-//     command: "build",
-//     regex: /in (\d+)/,
-//     skip: true,
-//   },
-//   {
-//     name: "Rspack 0.2.5",
-//     command: "build:rspack",
-//     regex: /Time: (\d+)(s|ms)/,
-//     skip: true,
-//   },
-//   {
-//     name: "Vite 4.4.2",
-//     command: "build:vite",
-//     regex: /built in (\d+\.\d+)(s|ms)/,
-//     skip: true,
-//   },
-//   {
-//     name: "Turbopack 13.4.9 ",
-//     command: "build:turbopack",
-//     regex: /Creating an optimized/,
-//     skip: false,
-//   },
-//   {
-//     name: "Webpack(babel) 5.88.0",
-//     command: "build:webpack",
-//     regex: /in (\d+) ms/,
-//     skip: true,
-//   },
-// ];
-
-// async function runBuildCommand(buildCommandTool) {
-//   console.log(`Running build command: ${buildCommandTool.command}`);
-//   let startTime = null;
-//   let skipTime = null;
-//   const child = spawn(`npm`, ["run", buildCommandTool.command], {
-//     stdio: ["pipe"],
-//     shell: true,
-//   });
-//   if (!buildCommandTool.skip) {
-//     startTime = performance.now();
-//   }
-//   child.stdout.on("data", (data) => {
-//     // console.log(data.toString());
-//     const match = buildCommandTool.regex.exec(data.toString());
-//     // console.log(match);
-//     if (match !== null && match[1] && buildCommandTool.skip) {
-//       const time = match[1];
-//       const unit = match[2];
-//       if (unit === "s") {
-//         skipTime = time * 1000;
-//       } else {
-//         skipTime = time;
-//       }
-//     }
-//   });
-//   await new Promise((resolve, reject) => {
-//     child.on("exit", resolve);
-//     child.on("error", reject);
-//   });
-//   const endTime = performance.now();
-//   console.log(`Finished build command: ${buildCommandTool.command}`);
-//   const elapsedTime = Math.floor(endTime - startTime);
-//   return buildCommandTool.skip ? `${skipTime}ms` : `${elapsedTime}ms`;
-// }
-
-// (async () => {
-//   for (const buildCommandTool of buildCommandTools) {
-//     console.warn(await runBuildCommand(buildCommandTool));
-//   }
-//   process.exit();
-// })();
