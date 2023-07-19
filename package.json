@@ -6,7 +6,8 @@
     "playwright": "^1.36.0",
     "react": "18",
     "react-dom": "18",
-    "tree-kill": "^1.2.2"
+    "tree-kill": "^1.2.2",
+    "puppeteer": "^19.7.4"
   },
   "devDependencies": {
     "@babel/core": "^7.21.0",
@@ -14,10 +15,10 @@
     "@babel/preset-react": "^7.18.6",
     "@babel/preset-typescript": "^7.21.0",
     "@farmfe/cli": "^0.5.5",
-    "@farmfe/core": "0.10.4",
+    "@farmfe/core": "0.10.5",
     "@farmfe/plugin-react": "^0.2.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",
-    "@rspack/cli": "0.2.7",
+    "@rspack/cli": "0.2.8",
     "@types/react": "18",
     "@types/react-dom": "18",
     "@vitejs/plugin-react": "^4.0.1",
@@ -26,7 +27,7 @@
     "css-loader": "^6.7.3",
     "esbuild": "^0.18.11",
     "html-webpack-plugin": "^5.5.0",
-    "next": "13.4.9",
+    "next": "13.4.10",
     "parcel": "^2.9.3",
     "react-refresh": "^0.14.0",
     "style-loader": "^3.3.1",
