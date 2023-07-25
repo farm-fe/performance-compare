@@ -101,6 +101,9 @@ import kill from "tree-kill";
 //   }
 // }
 
+const startConsole = "console.log('Farm Start Time', Date.now());";
+const startConsoleRegex = /Farm Start Time (\d+)/;
+
 class BuildTool {
   constructor(
     name,
@@ -109,8 +112,7 @@ class BuildTool {
     startedRegex,
     buildScript,
     buildRegex,
-    skipMatch,
-    startMatchReg
+    binFilePath,
   ) {
     this.name = name;
     this.port = port;
@@ -118,8 +120,21 @@ class BuildTool {
     this.startedRegex = startedRegex;
     this.buildScript = buildScript;
     this.buildRegex = buildRegex;
-    this.skipMatch = skipMatch;
-    this.startMatchReg = startMatchReg;
+    this.binFilePath = path.join(process.cwd(), 'node_modules', binFilePath);
+
+    console.log('hack bin file for', this.name, 'under', this.binFilePath);
+    this.hackBinFile();
+  }
+
+  // Add a `console.log('Farm start', Date.now())` to the bin file's second line
+  hackBinFile() {
+    const binFileContent = readFileSync(this.binFilePath, "utf-8");
+
+    if (!binFileContent.includes(startConsole)) {
+      const lines = binFileContent.split("\n");
+      lines.splice(1, 0, startConsole);
+      writeFileSync(this.binFilePath, lines.join("\n"));
+    }
   }
 
   async startServer() {
@@ -129,19 +144,23 @@ class BuildTool {
         shell: true,
       });
       this.child = child;
-      let skipStartTime = Date.now();
+      let startTime = null;
+
       child.stdout.on("data", (data) => {
+        // console.log(data.toString());
+        const startMatch = startConsoleRegex.exec(data.toString());
+        if (startMatch) {
+          startTime = startMatch[1];
+        }
+
         const match = this.startedRegex.exec(data.toString());
-        // bench turbopack starttime with node server start time util ">>> TURBOPACK"
-        if (!this.skipMatch && this.startMatchReg) {
-          const skipMatchReg = this.startMatchReg.exec(data.toString());
-          if (skipMatchReg) {
-            resolve(Date.now() - skipStartTime);
+        if (match) {
+          if (!startTime) {
+            throw new Error("Start time not found");
           }
-        } else {
-          if (match && match[1]) {
-            resolve(match[1] ? Number(match[1]) : null);
-          }
+          const time = Date.now() - startTime;
+
+          resolve(time);
         }
       });
       child.on("error", (error) => {
@@ -149,8 +168,8 @@ class BuildTool {
         reject(error);
       });
       child.on("exit", (code) => {
-        // console.log(`child process exited with code ${code}`);
-        if (code !== 0) {
+        if (code !== 0 && code !== null) {
+          console.log(`(${this.name} run ${this.script} failed) child process exited with code ${code}`);
           reject(code);
         }
       });
@@ -170,36 +189,33 @@ class BuildTool {
     return new Promise(async (resolve) => {
       console.log(`Running build command: ${this.buildScript}`);
       let startTime = null;
-      let skipTime = null;
+
       const child = spawn(`npm`, ["run", this.buildScript], {
         stdio: ["pipe"],
         shell: true,
       });
-      if (!this.skipMatch) {
-        startTime = performance.now();
-      }
+
       child.stdout.on("data", (data) => {
+        const startMatch = startConsoleRegex.exec(data.toString());
+        if (startMatch) {
+          startTime = startMatch[1];
+        }
+
         const match = this.buildRegex.exec(data.toString());
-        if (match !== null && match[1] && this.skipMatch) {
-          const time = match[1];
-          const unit = match[2];
-          if (unit === "s") {
-            skipTime = time * 1000;
-          } else {
-            skipTime = time;
+        if (match) {
+          if (!startTime) {
+            throw new Error("Start time not found");
           }
-          const endTime = performance.now();
-          const elapsedTime = Math.floor(endTime - startTime);
-          resolve(this.skipMatch ? skipTime : elapsedTime);
+          resolve(Date.now() - startTime);
         }
       });
-      await new Promise((resolve, reject) => {
+      return new Promise((resolve, reject) => {
         child.on("exit", resolve);
         child.on("error", reject);
       });
-      const endTime = performance.now();
-      const elapsedTime = Math.floor(endTime - startTime);
-      resolve(this.skipMatch ? skipTime : elapsedTime);
+      // const endTime = performance.now();
+      // const elapsedTime = Math.floor(endTime - startTime);
+      // resolve(this.skipMatch ? skipTime : elapsedTime);
     });
   }
 }
@@ -212,7 +228,7 @@ const buildTools = [
     /Ready on (?:.+) in (.+)ms/,
     "build",
     /in (\d+)/,
-    true
+    "@farmfe/cli/bin/farm.mjs"
   ),
   new BuildTool(
     "Rspack 0.2.8",
@@ -221,7 +237,7 @@ const buildTools = [
     /in (.+)ms/,
     "build:rspack",
     /in (.+) (s|ms)/,
-    true
+    "@rspack/cli/bin/rspack"
   ),
   new BuildTool(
     "Vite 4.4.3",
@@ -230,17 +246,16 @@ const buildTools = [
     /ready in (\d+) ms/,
     "build:vite",
     /built in (\d+\.\d+)(s|ms)/,
-    true
+    "vite/bin/vite.js"
   ),
   new BuildTool(
     "Turbopack 13.4.10",
     3000,
     "start:turbopack",
-    /started server on/,
+    /started server on \[::\]:3000, url: http:\/\/localhost:3000/,
     "build:turbopack",
-    /Creating an optimized/,
-    false,
-    /TURBOPACK/
+    /uses no initial props/,
+    "next/dist/bin/next"
   ),
   new BuildTool(
     "Webpack(babel) 5.88.0",
@@ -248,13 +263,14 @@ const buildTools = [
     "start:webpack",
     /compiled .+ in (.+) ms/,
     "build:webpack",
-    /in (\d+) ms/
+    /in (\d+) ms/,
+    "webpack-cli/bin/cli.js"
   ),
 ];
 
 const browser = await puppeteer.launch();
 
-const n = 1;
+const n = 3;
 
 console.log("Running benchmark " + n + " times, please wait...");
 

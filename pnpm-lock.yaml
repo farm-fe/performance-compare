@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
@@ -41,11 +41,11 @@ devDependencies:
     specifier: ^0.5.5
     version: 0.5.5
   '@farmfe/core':
-    specifier: 0.10.5
-    version: 0.10.5
+    specifier: ^0.10.7
+    version: 0.10.7
   '@farmfe/plugin-react':
-    specifier: ^0.2.0
-    version: 0.2.0
+    specifier: ^0.2.1
+    version: 0.2.1
   '@pmmmwh/react-refresh-webpack-plugin':
     specifier: ^0.5.10
     version: 0.5.10(react-refresh@0.14.0)(webpack-dev-server@4.15.1)(webpack@5.88.1)
@@ -1812,8 +1812,8 @@ packages:
       walkdir: 0.4.1
     dev: true
 
-  /@farmfe/core-darwin-arm64@0.10.5:
-    resolution: {integrity: sha512-ijSnGq5XnXRVKC82bLits+9NFuYnA3W6AIRY/V1BDC7zwP1hgqm+6wDqGgR46svX72N3tJEHJyaO/1nmBa1o6g==}
+  /@farmfe/core-darwin-arm64@0.10.7:
+    resolution: {integrity: sha512-6b+RgtovMEjHgrhetBp6QQx/jKrr/Sp9LKawDnEY6966yoRzXB65uizRrx8p+Hbs8LX8S2dJXlF7l95VRMIdKg==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [darwin]
@@ -1821,8 +1821,8 @@ packages:
     dev: true
     optional: true
 
-  /@farmfe/core-darwin-x64@0.10.5:
-    resolution: {integrity: sha512-skr75NmqKIb7E5Pp1tWDJ3kacO3kUusLJhZtkcMFmpQpJ7tc2ZJaUHrl78ArkznFuwFfxCUkkjpUny/tQHE0oQ==}
+  /@farmfe/core-darwin-x64@0.10.7:
+    resolution: {integrity: sha512-cl6GNAk8XitQT1NlG2XZ09588KlSIR+u8j1+l1wjKHt13+2u4EbOK3Fh84Sr8HcDB27l3MPm4c0n7SOFyrDDGg==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [darwin]
@@ -1830,8 +1830,8 @@ packages:
     dev: true
     optional: true
 
-  /@farmfe/core-linux-x64-gnu@0.10.5:
-    resolution: {integrity: sha512-nzSu0Hrdi4nhdXh+UYVVpIJtF9EVpNLoJFqhY1/6LDvB2i7mw1GbIvcOzYw2rS9HWvdQswSqUGt3XZDxKy8vvg==}
+  /@farmfe/core-linux-x64-gnu@0.10.7:
+    resolution: {integrity: sha512-BfKhY5tQY740T/jIDN2drvIWH5ZgWqF9uIZu7HNZaEaeQrV61/Xq1+wSqOJsMgOdu2j1xSdO7j3LAX4QAnHE1w==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
@@ -1839,8 +1839,8 @@ packages:
     dev: true
     optional: true
 
-  /@farmfe/core-win32-x64-msvc@0.10.5:
-    resolution: {integrity: sha512-4nCvsBbBvIp3x3G3W0YaDZORtjx4PyKbE0xiC1FBJIVYUVyj/37JcpCGI+8uKSTBF24ni/oIQ66U1Lan7sja1g==}
+  /@farmfe/core-win32-x64-msvc@0.10.7:
+    resolution: {integrity: sha512-NE31qiWjwl2k5E4+iwpZRdUo7PjFXFwelyi0srD/3N0KCqqnuelB5VQxmUXLsA/cfiZyI4wfuyut6LacjSFkLQ==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
@@ -1848,8 +1848,8 @@ packages:
     dev: true
     optional: true
 
-  /@farmfe/core@0.10.5:
-    resolution: {integrity: sha512-OpHJf7Z3v2zoFEiq/Hszzf0WOsKIxje9/hAufooP7OosWIcE6lM242U/4AP5CzN3sf/5Rtq6Y1nJCxv39cc8oQ==}
+  /@farmfe/core@0.10.7:
+    resolution: {integrity: sha512-d+EIsV9+MqWlBfN2hdpdbG9MDtABgf3KiNtebdSPyMCSqCl70O1fRk48rhd/rUPZQCVi1jVy0gBa2a6As6EAfg==}
     engines: {node: '>= 16'}
     dependencies:
       '@farmfe/runtime': 0.7.0
@@ -1876,10 +1876,10 @@ packages:
       zod: 3.21.4
       zod-validation-error: 1.3.1(zod@3.21.4)
     optionalDependencies:
-      '@farmfe/core-darwin-arm64': 0.10.5
-      '@farmfe/core-darwin-x64': 0.10.5
-      '@farmfe/core-linux-x64-gnu': 0.10.5
-      '@farmfe/core-win32-x64-msvc': 0.10.5
+      '@farmfe/core-darwin-arm64': 0.10.7
+      '@farmfe/core-darwin-x64': 0.10.7
+      '@farmfe/core-linux-x64-gnu': 0.10.7
+      '@farmfe/core-win32-x64-msvc': 0.10.7
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -1887,8 +1887,8 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@farmfe/plugin-react-darwin-arm64@0.2.0:
-    resolution: {integrity: sha512-mfGWZhAOA/rG26iniLLrGuId6Y/cDv11C5TSyrRrheHZl0yYRkHYMPQu1YeC+D1l/G/wI/4uy3b2Gs8SZIQYZg==}
+  /@farmfe/plugin-react-darwin-arm64@0.2.1:
+    resolution: {integrity: sha512-kLXkDI/gaJIgmZ0crr+XvANfC6Ah9SSZLK6KyBK/VuPE7l8Ayz41Pr+koiQiLsG1Uz5FiTxo7XDs8RarnIt0Kg==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [darwin]
@@ -1896,8 +1896,8 @@ packages:
     dev: true
     optional: true
 
-  /@farmfe/plugin-react-darwin-x64@0.2.0:
-    resolution: {integrity: sha512-Edcm8+ikyomYKw3ycA4i2cYk7WWBHjJzeBeLwpLTmL4trozvG2vwTsyM6BgjtZUMqDEs8wIHy+YMj4J/ckxyEw==}
+  /@farmfe/plugin-react-darwin-x64@0.2.1:
+    resolution: {integrity: sha512-iifPVgsCuhsNz5B/NB8s7NnFIkCVw26JiFzoaP/9eMpY1ZpynheNzNdZc5ckzUFzElGJt1mH1/eRpbCjZh/xsw==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [darwin]
@@ -1905,18 +1905,17 @@ packages:
     dev: true
     optional: true
 
-  /@farmfe/plugin-react-linux-x64-gnu@0.2.0:
-    resolution: {integrity: sha512-7rRvxmPXVNjGWDpXvNAM3eRT86rXmZc5+MFUK+YOxr71UMMUnIrMMW/Y3NwBeXnXoG5UFR6e6KWyDYMJy9njew==}
+  /@farmfe/plugin-react-linux-x64-gnu@0.2.1:
+    resolution: {integrity: sha512-k1zwDd075Ny4j6dmDqtePJa/qQE07tDJj2qjhTCLpcTUuDizTkXZseQRXDCTiLSgNme9Z9SgBHH/jW2i3dlG5g==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
-    libc: [glibc]
     requiresBuild: true
     dev: true
     optional: true
 
-  /@farmfe/plugin-react-win32-x64-msvc@0.2.0:
-    resolution: {integrity: sha512-qewk1BpoaO26DpzVWCw4kQVcP++48A49Mtuo7vUESWWB5hw2/vVuPJRGpmbtj8PvnjPpNVbqdIhNr7jEDR1Y/Q==}
+  /@farmfe/plugin-react-win32-x64-msvc@0.2.1:
+    resolution: {integrity: sha512-X854XJnKu0a3EQK8jc/mbimwHakCWTKDK1H3fsby+o/Uom6X+6dw5VdfvIr/9fRza93t1Nr43PiPwEvfNfY3JA==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
@@ -1924,13 +1923,13 @@ packages:
     dev: true
     optional: true
 
-  /@farmfe/plugin-react@0.2.0:
-    resolution: {integrity: sha512-Twcviv/l/TwiufgF6QTjjYWlsNzs3FXB94FWL4nMvsbDvhq3ow19ka1JbOK5OcWoJtW5uaLIr3EnV2oAdZuT4A==}
+  /@farmfe/plugin-react@0.2.1:
+    resolution: {integrity: sha512-LeaaicxCzD+9Zhwsmbj+XaQaVotQkvx7ZORwx9iCnKEkjEuINLxTIVMBFcWZDb4Ek1i76U8DMayO3/9YSU1SRw==}
     optionalDependencies:
-      '@farmfe/plugin-react-darwin-arm64': 0.2.0
-      '@farmfe/plugin-react-darwin-x64': 0.2.0
-      '@farmfe/plugin-react-linux-x64-gnu': 0.2.0
-      '@farmfe/plugin-react-win32-x64-msvc': 0.2.0
+      '@farmfe/plugin-react-darwin-arm64': 0.2.1
+      '@farmfe/plugin-react-darwin-x64': 0.2.1
+      '@farmfe/plugin-react-linux-x64-gnu': 0.2.1
+      '@farmfe/plugin-react-win32-x64-msvc': 0.2.1
     dev: true
 
   /@farmfe/runtime-plugin-hmr@3.2.2:
