@@ -4,103 +4,6 @@ import path from "path";
 import puppeteer from "puppeteer";
 import kill from "tree-kill";
 
-// class BuildTool {
-//   constructor(
-//     name,
-//     port,
-//     script,
-//     startedRegex,
-//     buildScript,
-//     buildRegex,
-//     skipMatch
-//   ) {
-//     this.name = name;
-//     this.port = port;
-//     this.script = script;
-//     this.startedRegex = startedRegex;
-//     this.buildScript = buildScript;
-//     this.buildRegex = buildRegex;
-//     this.skipMatch = skipMatch;
-//   }
-
-//   async startServer() {
-//     return new Promise((resolve, reject) => {
-//       const child = spawn(`npm`, ["run", this.script], {
-//         stdio: "pipe",
-//         shell: true,
-//       });
-//       this.child = child;
-//       const start = Date.now();
-
-//       child.stdout.on("data", (data) => {
-//         // console.log(data.toString());
-//         const match = this.startedRegex.exec(data.toString());
-
-//         if (match) {
-//           const time = Date.now() - start;
-//           resolve(time);
-//         }
-//       });
-//       child.on("error", (error) => {
-//         console.log(`error: ${error.message}`);
-//         reject(error);
-//       });
-//       child.on("exit", (code) => {
-//         // console.log(`child process exited with code ${code}`);
-//         if (code !== 0) {
-//           reject(code);
-//         }
-//       });
-//     });
-//   }
-
-//   stopServer() {
-//     this.child.stdin.pause();
-//     this.child.stdout.destroy();
-//     this.child.stderr.destroy();
-//     kill(this.child.pid);
-//   }
-
-//   async build() {
-//     return new Promise(async (resolve) => {
-//       console.log(`Running build command: ${this.buildScript}`);
-//       let startTime = null;
-//       let skipTime = null;
-//       const child = spawn(`npm`, ["run", this.buildScript], {
-//         stdio: ["pipe"],
-//         shell: true,
-//       });
-//       if (!this.skipMatch) {
-//         startTime = performance.now();
-//       }
-//       child.stdout.on("data", (data) => {
-//         // console.log(data.toString());
-//         const match = this.buildRegex.exec(data.toString());
-//         // console.log(match);
-//         if (match !== null && match[1] && this.skipMatch) {
-//           const time = match[1];
-//           const unit = match[2];
-//           if (unit === "s") {
-//             skipTime = time * 1000;
-//           } else {
-//             skipTime = time;
-//           }
-//           const endTime = performance.now();
-//           const elapsedTime = Math.floor(endTime - startTime);
-//           resolve(this.skipMatch ? skipTime : elapsedTime);
-//         }
-//       });
-//       await new Promise((resolve, reject) => {
-//         child.on("exit", resolve);
-//         child.on("error", reject);
-//       });
-//       const endTime = performance.now();
-//       const elapsedTime = Math.floor(endTime - startTime);
-//       resolve(this.skipMatch ? skipTime : elapsedTime);
-//     });
-//   }
-// }
-
 const startConsole = "console.log('Farm Start Time', Date.now());";
 const startConsoleRegex = /Farm Start Time (\d+)/;
 
@@ -213,9 +116,6 @@ class BuildTool {
         child.on("exit", resolve);
         child.on("error", reject);
       });
-      // const endTime = performance.now();
-      // const elapsedTime = Math.floor(endTime - startTime);
-      // resolve(this.skipMatch ? skipTime : elapsedTime);
     });
   }
 }
@@ -287,7 +187,6 @@ async function runBenchmark() {
     const time = await buildTool.startServer();
     const page = await browser.newPage();
     const start = Date.now();
-    // await new Promise((resolve) => setTimeout(resolve, 1000));
 
     page.on("load", () => {
       const loadTime = Date.now() - start;
@@ -382,7 +281,6 @@ async function runBenchmark() {
     );
 
     await waitPromise;
-    // await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // restore files
     writeFileSync(
