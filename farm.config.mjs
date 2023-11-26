@@ -1,18 +1,8 @@
-export default {
-  compilation: {
-    input: {
-      index: "./index.html",
-    },
-    resolve: {
-      symlinks: true,
-      mainFields: ["module", "main", "customMain"],
-    },
-    output: {
-      path: "./build",
-    },
-  },
-  server: {
-    hmr: true,
-  },
+import { defineConfig } from "@farmfe/core";
+
+export default defineConfig({
   plugins: ["@farmfe/plugin-react"],
-};
+  compilation: {
+    persistentCache: false
+  }
+});

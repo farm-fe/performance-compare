@@ -15,7 +15,7 @@ class BuildTool {
     startedRegex,
     buildScript,
     buildRegex,
-    binFilePath,
+    binFilePath
   ) {
     this.name = name;
     this.port = port;
@@ -23,9 +23,9 @@ class BuildTool {
     this.startedRegex = startedRegex;
     this.buildScript = buildScript;
     this.buildRegex = buildRegex;
-    this.binFilePath = path.join(process.cwd(), 'node_modules', binFilePath);
+    this.binFilePath = path.join(process.cwd(), "node_modules", binFilePath);
 
-    console.log('hack bin file for', this.name, 'under', this.binFilePath);
+    console.log("hack bin file for", this.name, "under", this.binFilePath);
     this.hackBinFile();
   }
 
@@ -50,12 +50,10 @@ class BuildTool {
       let startTime = null;
 
       child.stdout.on("data", (data) => {
-        // console.log(data.toString());
         const startMatch = startConsoleRegex.exec(data.toString());
         if (startMatch) {
           startTime = startMatch[1];
         }
-
         const match = this.startedRegex.exec(data.toString());
         if (match) {
           if (!startTime) {
@@ -72,7 +70,9 @@ class BuildTool {
       });
       child.on("exit", (code) => {
         if (code !== 0 && code !== null) {
-          console.log(`(${this.name} run ${this.script} failed) child process exited with code ${code}`);
+          console.log(
+            `(${this.name} run ${this.script} failed) child process exited with code ${code}`
+          );
           reject(code);
         }
       });
@@ -103,7 +103,6 @@ class BuildTool {
         if (startMatch) {
           startTime = startMatch[1];
         }
-
         const match = this.buildRegex.exec(data.toString());
         if (match) {
           if (!startTime) {
@@ -122,16 +121,16 @@ class BuildTool {
 
 const buildTools = [
   new BuildTool(
-    "Farm 0.10.5",
+    "Farm 0.14.6",
     9000,
     "start",
-    /Ready on (?:.+) in (.+)ms/,
+    /Ready in (.+)ms/,
     "build",
     /in (\d+)/,
     "@farmfe/cli/bin/farm.mjs"
   ),
   new BuildTool(
-    "Rspack 0.2.8",
+    "Rspack 0.4.0",
     8080,
     "start:rspack",
     /in (.+)ms/,
@@ -140,7 +139,7 @@ const buildTools = [
     "@rspack/cli/bin/rspack"
   ),
   new BuildTool(
-    "Vite 4.4.3",
+    "Vite 5.0.0",
     5173,
     "start:vite",
     /ready in (\d+) ms/,
@@ -148,17 +147,17 @@ const buildTools = [
     /built in (\d+\.\d+)(s|ms)/,
     "vite/bin/vite.js"
   ),
+  // new BuildTool(
+  //   "Turbopack 14.0.3",
+  //   3000,
+  //   "start:turbopack",
+  //   /started server on \[::\]:3000, url: http:\/\/localhost:3000/,
+  //   "build:turbopack",
+  //   /uses no initial props/,
+  //   "next/dist/bin/next"
+  // ),
   new BuildTool(
-    "Turbopack 13.4.10",
-    3000,
-    "start:turbopack",
-    /started server on \[::\]:3000, url: http:\/\/localhost:3000/,
-    "build:turbopack",
-    /uses no initial props/,
-    "next/dist/bin/next"
-  ),
-  new BuildTool(
-    "Webpack(babel) 5.88.0",
+    "Webpack(babel) 5.89.0",
     8081,
     "start:webpack",
     /compiled .+ in (.+) ms/,
@@ -170,7 +169,7 @@ const buildTools = [
 
 const browser = await puppeteer.launch();
 
-const n = 3;
+const n = 1;
 
 console.log("Running benchmark " + n + " times, please wait...");
 
