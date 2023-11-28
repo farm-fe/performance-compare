@@ -3,7 +3,7 @@ import { appendFile, readFileSync, writeFileSync } from "fs";
 import path from "path";
 import puppeteer from "puppeteer";
 import kill from "tree-kill";
-import * as Chart from "chart.js";
+import { DefaultLogger } from "@farmfe/core";
 
 const startConsole = "console.log('Farm Start Time', Date.now());";
 const startConsoleRegex = /Farm Start Time (\d+)/;
@@ -25,7 +25,7 @@ class BuildTool {
     this.buildScript = buildScript;
     this.buildRegex = buildRegex;
     this.binFilePath = path.join(process.cwd(), "node_modules", binFilePath);
-
+    this.logger = new DefaultLogger();
     console.log("hack bin file for", this.name, "under", this.binFilePath);
     this.hackBinFile();
   }
@@ -305,8 +305,9 @@ async function runBenchmark() {
   totalResults.push(results);
 }
 
-// average results
 const averageResults = {};
+
+const chartData = {};
 
 for (const result of totalResults) {
   for (const [name, values] of Object.entries(result)) {
@@ -314,30 +315,35 @@ for (const result of totalResults) {
       averageResults[name] = {};
     }
 
+    if (!chartData[name]) {
+      chartData[name] = {};
+    }
+
     for (const [key, value] of Object.entries(values)) {
       if (!averageResults[name][key]) {
-        averageResults[name][key] = 0;
+        averageResults[name][key] = "Calculation error Time ！";
       }
 
-      averageResults[name][key] += Number(value);
+      if (!chartData[name][key]) {
+        chartData[name][key] = 0; // 初始化为纯数字
+      }
+
+      chartData[name][key] += Number(value);
+      averageResults[name][key] =
+        Math.floor(chartData[name][key] / totalResults.length) + "ms";
     }
   }
 }
 
-for (const [name, values] of Object.entries(averageResults)) {
-  for (const [key, value] of Object.entries(values)) {
-    averageResults[name][key] = Math.floor(value / totalResults.length) + "ms";
-  }
-}
+// 打印带单位的数据
+console.table(averageResults);
 
 console.log("average results of " + totalResults.length + " runs:");
-console.table(averageResults);
-const benchmarkData = { ...averageResults };
+const benchmarkData = { ...chartData };
 
 async function getData(data) {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
-
   await page.setContent(`
   <!DOCTYPE html>
   <html lang="en">
@@ -351,7 +357,7 @@ async function getData(data) {
       <canvas id="myChart" width="600" height="400"></canvas>
   
       <script>
-        const benchmarkData = ${data}
+        const benchmarkData = ${JSON.stringify(data)}
   
         const ctx = document.getElementById("myChart").getContext("2d");
         function randomColor(){
@@ -402,8 +408,11 @@ async function getData(data) {
   </html>
   
 `);
+  const logger = new DefaultLogger();
+  logger.warn("Ready to start taking screenshots");
   await new Promise((resolve) => setTimeout(() => resolve(), 500));
   await page.screenshot({ path: "chart.png" });
+  logger.info("Picture generated successfully ！");
 
   await browser.close();
 }
