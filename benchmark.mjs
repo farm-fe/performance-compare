@@ -7,6 +7,7 @@ import { DefaultLogger } from "@farmfe/core";
 
 const startConsole = "console.log('Farm Start Time', Date.now());";
 const startConsoleRegex = /Farm Start Time (\d+)/;
+const logger = new DefaultLogger();
 
 class BuildTool {
   constructor(
@@ -25,8 +26,7 @@ class BuildTool {
     this.buildScript = buildScript;
     this.buildRegex = buildRegex;
     this.binFilePath = path.join(process.cwd(), "node_modules", binFilePath);
-    this.logger = new DefaultLogger();
-    console.log("hack bin file for", this.name, "under", this.binFilePath);
+    logger.info("hack bin file for", this.name, "under", this.binFilePath);
     this.hackBinFile();
   }
 
@@ -66,12 +66,12 @@ class BuildTool {
         }
       });
       child.on("error", (error) => {
-        console.log(`error: ${error.message}`);
+        logger.error(`error: ${error.message}`);
         reject(error);
       });
       child.on("exit", (code) => {
         if (code !== 0 && code !== null) {
-          console.log(
+          logger.info(
             `(${this.name} run ${this.script} failed) child process exited with code ${code}`
           );
           reject(code);
@@ -91,7 +91,7 @@ class BuildTool {
 
   async build() {
     return new Promise(async (resolve) => {
-      console.log(`Running build command: ${this.buildScript}`);
+      logger.info(`Running build command: ${this.buildScript}`);
       let startTime = null;
 
       const child = spawn(`npm`, ["run", this.buildScript], {
@@ -171,7 +171,7 @@ const browser = await puppeteer.launch();
 
 const n = 1;
 
-console.log("Running benchmark " + n + " times, please wait...");
+logger.info("Running benchmark " + n + " times, please wait...");
 
 const totalResults = [];
 
@@ -189,7 +189,7 @@ async function runBenchmark() {
 
     page.on("load", () => {
       const loadTime = Date.now() - start;
-      console.log(
+      logger.info(
         buildTool.name,
         ": startup time: " + (time + loadTime) + "ms"
       );
@@ -204,7 +204,7 @@ async function runBenchmark() {
       results[buildTool.name].onLoadTime = loadTime;
     });
 
-    console.log("Navigating to", `http://localhost:${buildTool.port}`);
+    logger.info("Navigating to", `http://localhost:${buildTool.port}`);
 
     await page.goto(`http://localhost:${buildTool.port}`, {
       timeout: 60000,
@@ -227,7 +227,7 @@ async function runBenchmark() {
       if (event.text().includes("root hmr")) {
         const clientDateNow = /(\d+)/.exec(event.text())[1];
         const hmrTime = clientDateNow - hmrRootStart;
-        console.log(buildTool.name, " Root HMR time: " + hmrTime + "ms");
+        logger.info(buildTool.name, " Root HMR time: " + hmrTime + "ms");
 
         results[buildTool.name].rootHmr = hmrTime;
         if (isFinished()) {
@@ -236,7 +236,7 @@ async function runBenchmark() {
         }
       } else if (event.text().includes("leaf hmr")) {
         const hmrTime = Date.now() - hmrLeafStart;
-        console.log(buildTool.name, " Leaf HMR time: " + hmrTime + "ms");
+        logger.info(buildTool.name, " Leaf HMR time: " + hmrTime + "ms");
         results[buildTool.name].leafHmr = hmrTime;
         if (isFinished()) {
           page.close();
@@ -294,10 +294,10 @@ async function runBenchmark() {
     buildTool.stopServer();
 
     await new Promise((resolve) => setTimeout(resolve, 500));
-    console.log("close Server");
-    console.log("prepare build");
+    logger.info("close Server");
+    logger.info("prepare build");
     const buildTime = await buildTool.build();
-    console.log(buildTool.name, ": build time: " + buildTime + "ms");
+    logger.info(buildTool.name, ": build time: " + buildTime + "ms");
     results[buildTool.name].buildTime = buildTime;
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
@@ -338,7 +338,7 @@ for (const result of totalResults) {
 // 打印带单位的数据
 console.table(averageResults);
 
-console.log("average results of " + totalResults.length + " runs:");
+logger.info("average results of " + totalResults.length + " runs:");
 const benchmarkData = { ...chartData };
 
 async function getData(data) {

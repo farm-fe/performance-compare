@@ -24,7 +24,6 @@
     "@types/react-dom": "18",
     "@vitejs/plugin-react": "^4.0.1",
     "babel-loader": "^9.1.2",
-    "chart.js": "^4.4.0",
     "core-js": "^3.31.0",
     "css-loader": "^6.7.3",
     "esbuild": "^0.18.11",
