@@ -1,4 +1,11 @@
 {
-  "cSpell.words": ["clsx", "farmfe", "pmmmwh", "rspack", "turbopack"],
+  "cSpell.words": [
+    "clsx",
+    "farmfe",
+    "pmmmwh",
+    "prerendered",
+    "rspack",
+    "turbopack"
+  ],
   "editor.inlineSuggest.showToolbar": "always"
 }

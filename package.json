@@ -4,10 +4,10 @@
   "dependencies": {
     "clsx": "^1.2.1",
     "playwright": "^1.36.0",
+    "puppeteer": "^19.7.4",
     "react": "18",
     "react-dom": "18",
-    "tree-kill": "^1.2.2",
-    "puppeteer": "^19.7.4"
+    "tree-kill": "^1.2.2"
   },
   "devDependencies": {
     "@babel/core": "^7.21.0",
@@ -24,6 +24,7 @@
     "@types/react-dom": "18",
     "@vitejs/plugin-react": "^4.0.1",
     "babel-loader": "^9.1.2",
+    "chart.js": "^4.4.0",
     "core-js": "^3.31.0",
     "css-loader": "^6.7.3",
     "esbuild": "^0.18.11",
@@ -47,6 +48,7 @@
     "build:webpack": "webpack build --mode production",
     "start:rspack": "rspack serve",
     "build:rspack": "rspack build",
+    "preview:rspack": "rspack preview",
     "start:turbopack": "next dev --turbo",
     "build:turbopack": "next build"
   }
