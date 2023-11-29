@@ -367,14 +367,14 @@ async function getData(data) {
           labels: Object.keys(benchmarkData),
           datasets: [
             {
-              label: "启动时间",
+              label: "startup(serverStartTime + onLoadTime) (Cold)",
               data: Object.values(benchmarkData).map(
                 (item) => item.serverStartTime
               ),
               backgroundColor: randomColor()
             },
             {
-              label: "构建时间",
+              label: "BuildTime (Cold)",
               data: Object.values(benchmarkData).map((item) => item.buildTime),
               backgroundColor: randomColor()
             },
