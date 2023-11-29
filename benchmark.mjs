@@ -130,14 +130,32 @@ const buildTools = [
     "@farmfe/cli/bin/farm.mjs"
   ),
   new BuildTool(
-    "Rspack 0.4.0",
-    8080,
-    "start:rspack",
-    /in (.+)ms/,
-    "build:rspack",
-    /in (.+) (s|ms)/,
-    "@rspack/cli/bin/rspack"
+    "Farm 0.14.9 (Hot Start)",
+    9000,
+    "start",
+    /Ready in (.+)ms/,
+    "build",
+    /in (\d+)/,
+    "@farmfe/cli/bin/farm.mjs"
   ),
+  // new BuildTool(
+  //   "Rspack 0.4.0",
+  //   8080,
+  //   "start:rspack",
+  //   /in (.+)ms/,
+  //   "build:rspack",
+  //   /in (.+) (s|ms)/,
+  //   "@rspack/cli/bin/rspack"
+  // ),
+  // new BuildTool(
+  //   "Rspack 0.4.0 (Hot Start)",
+  //   8080,
+  //   "start:rspack",
+  //   /in (.+)ms/,
+  //   "build:rspack",
+  //   /in (.+) (s|ms)/,
+  //   "@rspack/cli/bin/rspack"
+  // ),
   new BuildTool(
     "Vite 5.0.0",
     5173,
@@ -148,23 +166,50 @@ const buildTools = [
     "vite/bin/vite.js"
   ),
   new BuildTool(
-    "Turbopack 14.0.3",
-    3000,
-    "start:turbopack",
-    /- Local:  /,
-    "build:turbopack",
-    /prerendered as static content/,
-    "next/dist/bin/next"
+    "Vite 5.0.0 (Hot Start)",
+    5173,
+    "start:vite",
+    /ready in (\d+) ms/,
+    "build:vite",
+    /built in (\d+\.\d+)(s|ms)/,
+    "vite/bin/vite.js"
   ),
-  new BuildTool(
-    "Webpack(babel) 5.89.0",
-    8081,
-    "start:webpack",
-    /compiled .+ in (.+) ms/,
-    "build:webpack",
-    /in (\d+) ms/,
-    "webpack-cli/bin/cli.js"
-  ),
+  // new BuildTool(
+  //   "Turbopack 14.0.3",
+  //   3000,
+  //   "start:turbopack",
+  //   /- Local:  /,
+  //   "build:turbopack",
+  //   /prerendered as static content/,
+  //   "next/dist/bin/next"
+  // ),
+  // new BuildTool(
+  //   "Turbopack 14.0.3(Hot Start)",
+  //   3000,
+  //   "start:turbopack",
+  //   /- Local:  /,
+  //   "build:turbopack",
+  //   /prerendered as static content/,
+  //   "next/dist/bin/next"
+  // ),
+  // new BuildTool(
+  //   "Webpack(babel) 5.89.0",
+  //   8081,
+  //   "start:webpack",
+  //   /compiled .+ in (.+) ms/,
+  //   "build:webpack",
+  //   /in (\d+) ms/,
+  //   "webpack-cli/bin/cli.js"
+  // ),
+  // new BuildTool(
+  //   "Webpack(babel) 5.89.0(Hot Start)",
+  //   8081,
+  //   "start:webpack",
+  //   /compiled .+ in (.+) ms/,
+  //   "build:webpack",
+  //   /in (\d+) ms/,
+  //   "webpack-cli/bin/cli.js"
+  // ),
 ];
 
 const browser = await puppeteer.launch();
