@@ -69,3 +69,7 @@ export default React.memo(Container);
     
     console.log('root hmr', Date.now());
     
+    console.log('root hmr', Date.now());
+    
+    console.log('root hmr', Date.now());
+    
