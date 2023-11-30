@@ -1,4 +1,4 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
 
 settings:
   autoInstallPeers: true
@@ -41,8 +41,8 @@ devDependencies:
     specifier: 0.5.11
     version: 0.5.11
   '@farmfe/core':
-    specifier: 0.14.10
-    version: 0.14.10
+    specifier: 0.14.12
+    version: 0.14.12
   '@farmfe/plugin-react':
     specifier: ^0.4.1
     version: 0.4.1
@@ -50,8 +50,8 @@ devDependencies:
     specifier: ^0.5.10
     version: 0.5.10(react-refresh@0.14.0)(webpack-dev-server@4.15.1)(webpack@5.89.0)
   '@rspack/cli':
-    specifier: 0.4.0
-    version: 0.4.0(@rspack/core@0.4.0)(esbuild@0.18.11)(react-refresh@0.14.0)(webpack-cli@5.1.4)
+    specifier: 0.4.1
+    version: 0.4.1(@rspack/core@0.4.0)(esbuild@0.18.11)(react-refresh@0.14.0)(webpack-cli@5.1.4)
   '@rspack/plugin-react-refresh':
     specifier: 0.3.14
     version: 0.3.14(react-refresh@0.14.0)(webpack-dev-server@4.15.1)(webpack@5.89.0)
@@ -63,7 +63,7 @@ devDependencies:
     version: 18.0.11
   '@vitejs/plugin-react':
     specifier: ^4.0.1
-    version: 4.0.1(vite@5.0.2)
+    version: 4.0.1(vite@5.0.4)
   babel-loader:
     specifier: ^9.1.2
     version: 9.1.2(@babel/core@7.21.0)(webpack@5.89.0)
@@ -92,8 +92,8 @@ devDependencies:
     specifier: ^3.3.1
     version: 3.3.1(webpack@5.89.0)
   vite:
-    specifier: 5.0.2
-    version: 5.0.2
+    specifier: 5.0.4
+    version: 5.0.4
   webpack:
     specifier: ^5.89.0
     version: 5.89.0(esbuild@0.18.11)(webpack-cli@5.1.4)
@@ -2012,8 +2012,8 @@ packages:
       walkdir: 0.4.1
     dev: true
 
-  /@farmfe/core-darwin-arm64@0.14.10:
-    resolution: {integrity: sha512-4NxwjAA0zGDxZokZR+pTbm//YijXs1Rjo6HehgmBFTt12Yy3vNrp7J7TTlYxhe+gVIrP6UA+4hmnEpDoLbwbhA==}
+  /@farmfe/core-darwin-arm64@0.14.12:
+    resolution: {integrity: sha512-qiaOxilFkLS0cTcB3I/TcMifurBTJ8OmrIQJ5txWb0TUV9WvqI8tZ86JgIUg2xX0urykxSAnzwVqI210yogOrw==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [darwin]
@@ -2021,8 +2021,8 @@ packages:
     dev: true
     optional: true
 
-  /@farmfe/core-darwin-x64@0.14.10:
-    resolution: {integrity: sha512-wCQOK5JI+0wvehp5Nn8l1vUtl2iic/TwJ2kA5BiWzzhIK0goc2/GVlskMvuJ/1CK8WvLd91ClWIDdKjxx7IUtQ==}
+  /@farmfe/core-darwin-x64@0.14.12:
+    resolution: {integrity: sha512-WIpgJURZUBfh6jkWbnH2U6v8n6IxoyvmHu1tZH/SmEu8mBQglRPjXXHalMjIZeS8q3yAvl5rer9CQ95wcn1hvA==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [darwin]
@@ -2030,8 +2030,8 @@ packages:
     dev: true
     optional: true
 
-  /@farmfe/core-linux-arm64-gnu@0.14.10:
-    resolution: {integrity: sha512-KiXakgI0iEokO0oB/vdM2+5INz5JXPoeb5Hk3cqs9MDXeDl44XwStV8rcvhb7d3oFjKsqN9AS/jHaWR55B0B9w==}
+  /@farmfe/core-linux-arm64-gnu@0.14.12:
+    resolution: {integrity: sha512-a3lMdjg85wKvXIUw6NA3XATsoEuI9murhcWaJ/Itr1TOXezjQECn3g5rlaMNmp1T7Va7gmDqPBNhk6YZ6tEYnA==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
@@ -2039,8 +2039,8 @@ packages:
     dev: true
     optional: true
 
-  /@farmfe/core-linux-arm64-musl@0.14.10:
-    resolution: {integrity: sha512-7FDUoDciMJxUq+o3MtKdbSPpAUZtln7cz77zigHJd+GKznubPghUjj/FuExwJvI8Qltx4VrHa3CCl0OpnCx4XA==}
+  /@farmfe/core-linux-arm64-musl@0.14.12:
+    resolution: {integrity: sha512-ltcqvSiY+cGu1yHDlF1wJCmNMqqd8wPibCAPFBqHywrWYze1nnOW8gj94SJB+9ta1JXCG4jJQhVbgqXSzgmnfA==}
     engines: {node: '>= 10'}
     cpu: [arm64]
     os: [linux]
@@ -2048,8 +2048,8 @@ packages:
     dev: true
     optional: true
 
-  /@farmfe/core-linux-x64-gnu@0.14.10:
-    resolution: {integrity: sha512-y5nJy0HH9y0MBaESInyLcFaefa+jpi6MdUsQZxMW7LjTDtngzxkZIOfayO0+8k7Yf/DLPY/ApmrsPC8xfPXQpw==}
+  /@farmfe/core-linux-x64-gnu@0.14.12:
+    resolution: {integrity: sha512-jTenSjhWqUrXLgaudLQzLtea6FFr6MyORPFSrSQSPDf09An0F2finYf/wc65PGFLuzBs+hR5Ain4VRRwKb7CrQ==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [linux]
@@ -2058,8 +2058,8 @@ packages:
     dev: true
     optional: true
 
-  /@farmfe/core-win32-x64-msvc@0.14.10:
-    resolution: {integrity: sha512-oPPyyfnI178sZzUvZgQ/z6D3dYPBEnQ/jDHFa4S9hKWSEW2pUwr1looSE24vmbnEIEvLjCtyBC8iisYFh3eRbw==}
+  /@farmfe/core-win32-x64-msvc@0.14.12:
+    resolution: {integrity: sha512-O+BQ4PHQK+vd7jgWfx5uHNnDKaLagUON649GCkfR7RUh2C8Rv1waH7nfNWA+XyWFsltZnHFSp9auXS5j4liHRA==}
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
@@ -2067,11 +2067,11 @@ packages:
     dev: true
     optional: true
 
-  /@farmfe/core@0.14.10:
-    resolution: {integrity: sha512-YEWV+b2PzLJi3RKOZUVNb3InmA4/Zoe1YrzmP8c99lfVvgI8RPJFsNL+2t+MblaJM9uA+kwCJdxob1SBihTOJA==}
+  /@farmfe/core@0.14.12:
+    resolution: {integrity: sha512-jntXzexsFDVFCO10t+ob+JAfDcobf2r8oSL74/IRxXyc50t0vqR/HJ/TBjFCxznKJnmMJ+V7WM/MM2Xt8nBxkA==}
     engines: {node: '>= 16'}
     dependencies:
-      '@farmfe/runtime': 0.8.3
+      '@farmfe/runtime': 0.8.4
       '@farmfe/runtime-plugin-hmr': 3.3.1
       '@farmfe/runtime-plugin-import-meta': 0.0.4
       '@koa/cors': 4.0.0
@@ -2095,12 +2095,12 @@ packages:
       zod: 3.21.4
       zod-validation-error: 1.3.1(zod@3.21.4)
     optionalDependencies:
-      '@farmfe/core-darwin-arm64': 0.14.10
-      '@farmfe/core-darwin-x64': 0.14.10
-      '@farmfe/core-linux-arm64-gnu': 0.14.10
-      '@farmfe/core-linux-arm64-musl': 0.14.10
-      '@farmfe/core-linux-x64-gnu': 0.14.10
-      '@farmfe/core-win32-x64-msvc': 0.14.10
+      '@farmfe/core-darwin-arm64': 0.14.12
+      '@farmfe/core-darwin-x64': 0.14.12
+      '@farmfe/core-linux-arm64-gnu': 0.14.12
+      '@farmfe/core-linux-arm64-musl': 0.14.12
+      '@farmfe/core-linux-x64-gnu': 0.14.12
+      '@farmfe/core-win32-x64-msvc': 0.14.12
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -2188,8 +2188,8 @@ packages:
       core-js: 3.31.0
     dev: true
 
-  /@farmfe/runtime@0.8.3:
-    resolution: {integrity: sha512-PZ4LchNUYvHkmwhJ/ml8gCJP8d2Fr6OS1njveJwPQTePPyFY+DcvDKcR6wlsAkx6oIq2+x0vNAhGMkFK/b81dA==}
+  /@farmfe/runtime@0.8.4:
+    resolution: {integrity: sha512-zh23JSIcmy1Dl111sMrV5VztxamJE0NY9ratneed286XGPjrd7Hqfw/1earevB3Cd8PpwsYxHNpBfBJCHUds5A==}
     dependencies:
       core-js: 3.31.0
     dev: true
@@ -3525,15 +3525,15 @@ packages:
       '@rspack/binding-win32-x64-msvc': 0.4.0
     dev: true
 
-  /@rspack/cli@0.4.0(@rspack/core@0.4.0)(esbuild@0.18.11)(react-refresh@0.14.0)(webpack-cli@5.1.4):
-    resolution: {integrity: sha512-bP/DSyUA+qLVVx99cmyXlrCwyID9jmbMfsMwDrn0BmY3IoBFFquhw9/5K1QBBpwlWnjGtntqeZPyAmweZ2loKw==}
+  /@rspack/cli@0.4.1(@rspack/core@0.4.0)(esbuild@0.18.11)(react-refresh@0.14.0)(webpack-cli@5.1.4):
+    resolution: {integrity: sha512-qOVLdf0pUE3MN7NmlOD2ApZn5JDMyehrmrbBx7UGyAMlLH+0v5E1veXPDzTwrcS7bcXGuPLMi9tWzCxfpXavTA==}
     hasBin: true
     peerDependencies:
       '@rspack/core': '>=0.4.0'
     dependencies:
       '@discoveryjs/json-ext': 0.5.7
       '@rspack/core': 0.4.0
-      '@rspack/dev-server': 0.4.0(@rspack/core@0.4.0)(esbuild@0.18.11)(react-refresh@0.14.0)(webpack-cli@5.1.4)
+      '@rspack/dev-server': 0.4.1(@rspack/core@0.4.0)(esbuild@0.18.11)(react-refresh@0.14.0)(webpack-cli@5.1.4)
       colorette: 2.0.19
       exit-hook: 3.2.0
       interpret: 3.1.1
@@ -3581,13 +3581,13 @@ packages:
       zod-validation-error: 1.2.0(zod@3.21.4)
     dev: true
 
-  /@rspack/dev-server@0.4.0(@rspack/core@0.4.0)(esbuild@0.18.11)(react-refresh@0.14.0)(webpack-cli@5.1.4):
-    resolution: {integrity: sha512-qi70BKcGspjlNpufF+AOf5MHbEGnumMtVTtWzdw8I4xDWr2AguesrOEgACHMJx/EZks9vtbSqepf4anYglvsng==}
+  /@rspack/dev-server@0.4.1(@rspack/core@0.4.0)(esbuild@0.18.11)(react-refresh@0.14.0)(webpack-cli@5.1.4):
+    resolution: {integrity: sha512-M+Wp4fg8PuBHW2Ou0gIAC0sv64VMfrvTPLDHl8KvifAeYrcGqNXzPeY5j1OGLcSqDiXTFHYjbypsIHZkqET7nQ==}
     peerDependencies:
       '@rspack/core': '*'
     dependencies:
       '@rspack/core': 0.4.0
-      '@rspack/plugin-react-refresh': 0.4.0(react-refresh@0.14.0)(webpack-dev-server@4.13.1)(webpack@5.76.0)
+      '@rspack/plugin-react-refresh': 0.4.1(react-refresh@0.14.0)(webpack-dev-server@4.13.1)(webpack@5.76.0)
       chokidar: 3.5.3
       connect-history-api-fallback: 2.0.0
       express: 4.18.1
@@ -3635,8 +3635,8 @@ packages:
       - webpack-plugin-serve
     dev: true
 
-  /@rspack/plugin-react-refresh@0.4.0(react-refresh@0.14.0)(webpack-dev-server@4.13.1)(webpack@5.76.0):
-    resolution: {integrity: sha512-yo2FXVj6P2HrBGIxBqqRJQzAdG6CrL0WFE+kQk/Uz+7Ct09nPvl7zRdHE1BUXHnSXIjrMJj4fRmd7hXsmtTHXQ==}
+  /@rspack/plugin-react-refresh@0.4.1(react-refresh@0.14.0)(webpack-dev-server@4.13.1)(webpack@5.76.0):
+    resolution: {integrity: sha512-Fo6MBu4JNGqyrLXHkKG3Jhor0CG9yuXhig/a4vfrMInmKBkAyOCc5QnlGflXlyPs4bWhdViaUbl0kJaU11NLZg==}
     peerDependencies:
       react-refresh: '>=0.10.0 <1.0.0'
     peerDependenciesMeta:
@@ -3941,7 +3941,7 @@ packages:
     dev: false
     optional: true
 
-  /@vitejs/plugin-react@4.0.1(vite@5.0.2):
+  /@vitejs/plugin-react@4.0.1(vite@5.0.4):
     resolution: {integrity: sha512-g25lL98essfeSj43HJ0o4DMp0325XK0ITkxpgChzJU/CyemgyChtlxfnRbjfwxDGCTRxTiXtQAsdebQXKMRSOA==}
     engines: {node: ^14.18.0 || >=16.0.0}
     peerDependencies:
@@ -3951,7 +3951,7 @@ packages:
       '@babel/plugin-transform-react-jsx-self': 7.22.5(@babel/core@7.22.6)
       '@babel/plugin-transform-react-jsx-source': 7.22.5(@babel/core@7.22.6)
       react-refresh: 0.14.0
-      vite: 5.0.2
+      vite: 5.0.4
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -8345,8 +8345,8 @@ packages:
     engines: {node: '>= 0.8'}
     dev: true
 
-  /vite@5.0.2:
-    resolution: {integrity: sha512-6CCq1CAJCNM1ya2ZZA7+jS2KgnhbzvxakmlIjN24cF/PXhRMzpM/z8QgsVJA/Dm5fWUWnVEsmtBoMhmerPxT0g==}
+  /vite@5.0.4:
+    resolution: {integrity: sha512-RzAr8LSvM8lmhB4tQ5OPcBhpjOZRZjuxv9zO5UcxeoY2bd3kP3Ticd40Qma9/BqZ8JS96Ll/jeBX9u+LJZrhVg==}
     engines: {node: ^18.0.0 || >=20.0.0}
     hasBin: true
     peerDependencies:

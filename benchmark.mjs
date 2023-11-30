@@ -1,5 +1,5 @@
 import { spawn } from "child_process";
-import { appendFile, readFileSync, writeFileSync } from "fs";
+import { appendFile, rmSync, statSync, readFileSync, writeFileSync } from "fs";
 import path from "path";
 import puppeteer from "puppeteer";
 import kill from "tree-kill";
@@ -138,24 +138,24 @@ const buildTools = [
     /in (\d+)/,
     "@farmfe/cli/bin/farm.mjs"
   ),
-  // new BuildTool(
-  //   "Rspack 0.4.0",
-  //   8080,
-  //   "start:rspack",
-  //   /in (.+)ms/,
-  //   "build:rspack",
-  //   /in (.+) (s|ms)/,
-  //   "@rspack/cli/bin/rspack"
-  // ),
-  // new BuildTool(
-  //   "Rspack 0.4.0 (Hot Start)",
-  //   8080,
-  //   "start:rspack",
-  //   /in (.+)ms/,
-  //   "build:rspack",
-  //   /in (.+) (s|ms)/,
-  //   "@rspack/cli/bin/rspack"
-  // ),
+  new BuildTool(
+    "Rspack 0.4.0",
+    8080,
+    "start:rspack",
+    /in (.+)ms/,
+    "build:rspack",
+    /in (.+) (s|ms)/,
+    "@rspack/cli/bin/rspack"
+  ),
+  new BuildTool(
+    "Rspack 0.4.0 (Hot Start)",
+    8080,
+    "start:rspack",
+    /in (.+)ms/,
+    "build:rspack",
+    /in (.+) (s|ms)/,
+    "@rspack/cli/bin/rspack"
+  ),
   new BuildTool(
     "Vite 5.0.0",
     5173,
@@ -174,47 +174,47 @@ const buildTools = [
     /built in (\d+\.\d+)(s|ms)/,
     "vite/bin/vite.js"
   ),
-  // new BuildTool(
-  //   "Turbopack 14.0.3",
-  //   3000,
-  //   "start:turbopack",
-  //   /- Local:  /,
-  //   "build:turbopack",
-  //   /prerendered as static content/,
-  //   "next/dist/bin/next"
-  // ),
-  // new BuildTool(
-  //   "Turbopack 14.0.3(Hot Start)",
-  //   3000,
-  //   "start:turbopack",
-  //   /- Local:  /,
-  //   "build:turbopack",
-  //   /prerendered as static content/,
-  //   "next/dist/bin/next"
-  // ),
-  // new BuildTool(
-  //   "Webpack(babel) 5.89.0",
-  //   8081,
-  //   "start:webpack",
-  //   /compiled .+ in (.+) ms/,
-  //   "build:webpack",
-  //   /in (\d+) ms/,
-  //   "webpack-cli/bin/cli.js"
-  // ),
-  // new BuildTool(
-  //   "Webpack(babel) 5.89.0(Hot Start)",
-  //   8081,
-  //   "start:webpack",
-  //   /compiled .+ in (.+) ms/,
-  //   "build:webpack",
-  //   /in (\d+) ms/,
-  //   "webpack-cli/bin/cli.js"
-  // ),
+  new BuildTool(
+    "Turbopack 14.0.3",
+    3000,
+    "start:turbopack",
+    /- Local:  /,
+    "build:turbopack",
+    /prerendered as static content/,
+    "next/dist/bin/next"
+  ),
+  new BuildTool(
+    "Turbopack 14.0.3(Hot Start)",
+    3000,
+    "start:turbopack",
+    /- Local:  /,
+    "build:turbopack",
+    /prerendered as static content/,
+    "next/dist/bin/next"
+  ),
+  new BuildTool(
+    "Webpack(babel) 5.89.0",
+    8081,
+    "start:webpack",
+    /compiled .+ in (.+) ms/,
+    "build:webpack",
+    /in (\d+) ms/,
+    "webpack-cli/bin/cli.js"
+  ),
+  new BuildTool(
+    "Webpack(babel) 5.89.0(Hot Start)",
+    8081,
+    "start:webpack",
+    /compiled .+ in (.+) ms/,
+    "build:webpack",
+    /in (\d+) ms/,
+    "webpack-cli/bin/cli.js"
+  ),
 ];
 
 const browser = await puppeteer.launch();
 
-const n = 1;
+const n = 3;
 
 logger.info("Running benchmark " + n + " times, please wait...");
 
@@ -222,6 +222,49 @@ const totalResults = [];
 
 for (let i = 0; i < n; i++) {
   await runBenchmark();
+  // delete cache
+  await deleteCacheFiles();
+}
+
+async function deleteCacheFiles() {
+  const cacheFolderPaths = [
+    path.resolve(process.cwd(), "node_modules", ".cache"),
+    path.resolve(process.cwd(), "node_modules", ".farm"),
+    path.resolve(process.cwd(), "node_modules", ".vite"),
+    path.resolve(process.cwd(), ".next"),
+  ];
+
+  await Promise.all(
+    cacheFolderPaths.map(async (folderPath) => {
+      if (await folderExists(folderPath)) {
+        try {
+          await rmSync(folderPath, { recursive: true });
+          logger.info(`Deleted cache folder: ${folderPath}`);
+        } catch (err) {
+          logger.error(
+            `Error deleting cache folder ${folderPath}: ${err.message}`
+          );
+        }
+      } else {
+        logger.warn(`Cache folder does not exist: ${folderPath}`);
+      }
+    })
+  );
+
+  return Promise.resolve();
+}
+
+async function folderExists(path) {
+  try {
+    await statSync(path);
+    return true;
+  } catch (err) {
+    if (err.code === "ENOENT") {
+      return false;
+    } else {
+      throw err;
+    }
+  }
 }
 
 async function runBenchmark() {
