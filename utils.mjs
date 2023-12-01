@@ -3,7 +3,6 @@ import { rmSync, statSync } from "node:fs";
 import path from "node:path";
 import puppeteer from "puppeteer";
 
-
 const logger = new DefaultLogger();
 export async function getChartPic(data) {
   const browser = await puppeteer.launch();
@@ -38,8 +37,20 @@ export async function getChartPic(data) {
                 backgroundColor: randomColor()
               },
               {
+                label: "startup(serverStartTime + onLoadTime) (Hot Cache)",
+                data: Object.values(benchmarkData).map(
+                  (item) => item['hotStartup(serverStartTime + onLoadTime)']
+                ),
+                backgroundColor: randomColor()
+              },
+              {
                 label: "BuildTime (Cold)",
                 data: Object.values(benchmarkData).map((item) => item.buildTime),
+                backgroundColor: randomColor()
+              },
+              {
+                label: "BuildTime (Hot Cache)",
+                data: Object.values(benchmarkData).map((item) => item.hotBuildTime),
                 backgroundColor: randomColor()
               },
               {
@@ -119,5 +130,47 @@ export async function folderExists(path) {
     } else {
       throw err;
     }
+  }
+}
+
+export function mergeVersions(data, mainVersion, hotVersion) {
+  if (!(mainVersion in data) || !(hotVersion in data)) {
+    logger.error("not found mainVersion or hotVersion");
+    return;
+  }
+
+  const mainData = data[mainVersion];
+  const hotData = data[hotVersion];
+
+  const mergedVersion = {
+    ...mainData,
+  };
+
+  // 合并属性
+  for (const key in hotData) {
+    if (!(key in mainData) || key.endsWith("(Hot)")) {
+      mergedVersion[key] = hotData[key];
+    }
+  }
+
+  mergedVersion["hotBuildTime"] = hotData["buildTime"];
+
+  const startupKey = "hotStartup(serverStartTime + onLoadTime)";
+  const hotStartupKey = "startup(serverStartTime + onLoadTime)";
+  mergedVersion[startupKey] = hotData[hotStartupKey];
+
+  delete data[mainVersion];
+  delete data[hotVersion];
+
+  data[mainVersion] = mergedVersion;
+}
+
+export function mergeAllVersions(data) {
+  const versionArray = Object.keys(data);
+  for (let i = 1; i < versionArray.length; i += 2) {
+    const mainVersion = versionArray[i - 1];
+    const hotVersion = versionArray[i];
+    console.log(mainVersion, hotVersion);
+    mergeVersions(data, mainVersion, hotVersion);
   }
 }

@@ -1,10 +1,15 @@
 import { spawn } from "child_process";
-import { appendFile, rmSync, statSync, readFileSync, writeFileSync } from "fs";
+import { appendFile, readFileSync, writeFileSync } from "fs";
 import path from "path";
 import puppeteer from "puppeteer";
 import kill from "tree-kill";
 import { DefaultLogger } from "@farmfe/core";
-import { deleteCacheFiles, getChartPic } from "./utils.mjs";
+import {
+  deleteCacheFiles,
+  mergeAllVersions,
+  mergeVersions,
+  getChartPic,
+} from "./utils.mjs";
 
 const startConsole = "console.log('Farm Start Time', Date.now());";
 const startConsoleRegex = /Farm Start Time (\d+)/;
@@ -18,7 +23,8 @@ class BuildTool {
     startedRegex,
     buildScript,
     buildRegex,
-    binFilePath
+    binFilePath,
+    skipHmr = false
   ) {
     this.name = name;
     this.port = port;
@@ -26,6 +32,7 @@ class BuildTool {
     this.startedRegex = startedRegex;
     this.buildScript = buildScript;
     this.buildRegex = buildRegex;
+    this.skipHmr = skipHmr;
     this.binFilePath = path.join(process.cwd(), "node_modules", binFilePath);
     logger.info("hack bin file for", this.name, "under", this.binFilePath);
     this.hackBinFile();
@@ -138,7 +145,8 @@ const buildTools = [
     /Ready\s*in\s*(.+)ms/,
     "build",
     /completed\s*in\s*(.+)ms/,
-    "@farmfe/cli/bin/farm.mjs"
+    "@farmfe/cli/bin/farm.mjs",
+    true
   ),
   new BuildTool(
     "Rspack 0.4.1",
@@ -150,13 +158,14 @@ const buildTools = [
     "@rspack/cli/bin/rspack"
   ),
   new BuildTool(
-    "Rspack 0.4.0 (Hot)",
+    "Rspack 0.4.1 (Hot)",
     8080,
     "start:rspack",
     /in\s+(.+)(s|ms)/,
     "build:rspack",
     /in (.+) (s|ms)/,
-    "@rspack/cli/bin/rspack"
+    "@rspack/cli/bin/rspack",
+    true
   ),
   new BuildTool(
     "Vite 5.0.4",
@@ -168,13 +177,14 @@ const buildTools = [
     "vite/bin/vite.js"
   ),
   new BuildTool(
-    "Vite 5.0.0 (Hot)",
+    "Vite 5.0.4 (Hot)",
     5173,
     "start:vite",
     /ready\s*in\s*(.+)(s|ms)/,
     "build:vite",
     /built\s*in\s*(\d*\.\d*)\s*(s|ms)/,
-    "vite/bin/vite.js"
+    "vite/bin/vite.js",
+    true
   ),
   new BuildTool(
     "Turbopack 14.0.3",
@@ -186,13 +196,14 @@ const buildTools = [
     "next/dist/bin/next"
   ),
   new BuildTool(
-    "Turbopack 14.0.3(Hot Start)",
+    "Turbopack 14.0.3 (Hot)",
     3000,
     "start:turbopack",
     /-\s*Local:\s*/,
     "build:turbopack",
     /prerendered\s+as\s+static\s+content/,
-    "next/dist/bin/next"
+    "next/dist/bin/next",
+    true
   ),
   new BuildTool(
     "Webpack(babel) 5.89.0",
@@ -204,13 +215,14 @@ const buildTools = [
     "webpack-cli/bin/cli.js"
   ),
   new BuildTool(
-    "Webpack(babel) 5.89.0(Hot Start)",
+    "Webpack(babel) 5.89.0 (Hot)",
     8081,
     "start:webpack",
     /compiled\s+.+\sin\s+(\d+)\s+ms/,
     "build:webpack",
     /in\s+(\d+)\s+ms/,
-    "webpack-cli/bin/cli.js"
+    "webpack-cli/bin/cli.js",
+    true
   ),
 ];
 
@@ -259,88 +271,92 @@ async function runBenchmark() {
       timeout: 60000,
     });
 
-    let waitResolve = null;
-    const waitPromise = new Promise((resolve) => {
-      waitResolve = resolve;
-    });
+    if (!buildTool.skipHmr) {
+      let waitResolve = null;
+      const waitPromise = new Promise((resolve) => {
+        waitResolve = resolve;
+      });
 
-    let hmrRootStart = -1;
-    let hmrLeafStart = -1;
+      let hmrRootStart = -1;
+      let hmrLeafStart = -1;
 
-    page.on("console", (event) => {
-      const isFinished = () => {
-        return (
-          results[buildTool.name]?.rootHmr && results[buildTool.name]?.leafHmr
-        );
-      };
-      if (event.text().includes("root hmr")) {
-        const clientDateNow = /(\d+)/.exec(event.text())[1];
-        const hmrTime = clientDateNow - hmrRootStart;
-        logger.info(buildTool.name, " Root HMR time: " + hmrTime + "ms");
+      page.on("console", (event) => {
+        const isFinished = () => {
+          return (
+            results[buildTool.name]?.rootHmr && results[buildTool.name]?.leafHmr
+          );
+        };
+        if (event.text().includes("root hmr")) {
+          const clientDateNow = /(\d+)/.exec(event.text())[1];
+          const hmrTime = clientDateNow - hmrRootStart;
+          logger.info(buildTool.name, " Root HMR time: " + hmrTime + "ms");
 
-        results[buildTool.name].rootHmr = hmrTime;
-        if (isFinished()) {
-          page.close();
-          waitResolve();
+          results[buildTool.name].rootHmr = hmrTime;
+          if (isFinished()) {
+            page.close();
+            waitResolve();
+          }
+        } else if (event.text().includes("leaf hmr")) {
+          const hmrTime = Date.now() - hmrLeafStart;
+          logger.info(buildTool.name, " Leaf HMR time: " + hmrTime + "ms");
+          results[buildTool.name].leafHmr = hmrTime;
+          if (isFinished()) {
+            page.close();
+            waitResolve();
+          }
         }
-      } else if (event.text().includes("leaf hmr")) {
-        const hmrTime = Date.now() - hmrLeafStart;
-        logger.info(buildTool.name, " Leaf HMR time: " + hmrTime + "ms");
-        results[buildTool.name].leafHmr = hmrTime;
-        if (isFinished()) {
-          page.close();
-          waitResolve();
-        }
-      }
-    });
+      });
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    const originalRootFileContent = readFileSync(
-      path.resolve("src", "comps", "triangle.jsx"),
-      "utf-8"
-    );
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const originalRootFileContent = readFileSync(
+        path.resolve("src", "comps", "triangle.jsx"),
+        "utf-8"
+      );
 
-    appendFile(
-      path.resolve("src", "comps", "triangle.jsx"),
-      `
-    console.log('root hmr', Date.now());
-    `,
-      (err) => {
-        if (err) throw err;
-        hmrRootStart = Date.now();
-      }
-    );
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    const originalLeafFileContent = readFileSync(
-      path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
-      "utf-8"
-    );
-    appendFile(
-      path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
-      `
-      console.log('leaf hmr', Date.now());
+      appendFile(
+        path.resolve("src", "comps", "triangle.jsx"),
+        `
+      console.log('root hmr', Date.now());
       `,
-      (err) => {
-        if (err) throw err;
-        hmrLeafStart = Date.now();
-      }
-    );
+        (err) => {
+          if (err) throw err;
+          hmrRootStart = Date.now();
+        }
+      );
 
-    await waitPromise;
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // restore files
-    writeFileSync(
-      path.resolve("src", "comps", "triangle.jsx"),
-      originalRootFileContent
-    );
-    writeFileSync(
-      path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
-      originalLeafFileContent
-    );
+      const originalLeafFileContent = readFileSync(
+        path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
+        "utf-8"
+      );
+      appendFile(
+        path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
+        `
+        console.log('leaf hmr', Date.now());
+        `,
+        (err) => {
+          if (err) throw err;
+          hmrLeafStart = Date.now();
+        }
+      );
 
-    buildTool.stopServer();
+      await waitPromise;
+
+      // restore files
+      writeFileSync(
+        path.resolve("src", "comps", "triangle.jsx"),
+        originalRootFileContent
+      );
+      writeFileSync(
+        path.resolve("src", "comps", "triangle_1_1_2_1_2_2_1.jsx"),
+        originalLeafFileContent
+      );
+
+      buildTool.stopServer();
+    } else {
+      logger.warn("The Second BuildTools Skip HMR");
+    }
 
     await new Promise((resolve) => setTimeout(resolve, 500));
     logger.info("close Server");
@@ -357,7 +373,6 @@ async function runBenchmark() {
 const averageResults = {};
 
 const chartData = {};
-
 for (const result of totalResults) {
   for (const [name, values] of Object.entries(result)) {
     if (!averageResults[name]) {
@@ -385,6 +400,8 @@ for (const result of totalResults) {
 }
 
 console.table(averageResults);
+mergeAllVersions(chartData);
+// console.log(chartData);
 
 logger.info("average results of " + totalResults.length + " runs:");
 const benchmarkData = { ...chartData };
