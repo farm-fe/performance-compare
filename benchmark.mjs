@@ -202,8 +202,7 @@ const buildTools = [
     /-\s*Local:\s*/,
     "build:turbopack",
     /prerendered\s+as\s+static\s+content/,
-    "next/dist/bin/next",
-    true
+    "next/dist/bin/next"
   ),
   new BuildTool(
     "Webpack(babel) 5.89.0",

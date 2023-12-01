@@ -74,3 +74,7 @@ export default React.memo(Triangle);
         
         console.log('leaf hmr', Date.now());
         
+        console.log('leaf hmr', Date.now());
+        
+        console.log('leaf hmr', Date.now());
+        
