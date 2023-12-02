@@ -6,88 +6,65 @@ import puppeteer from "puppeteer";
 const logger = new DefaultLogger();
 export async function getChartPic(data) {
   const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  await page.setContent(`
-    <!DOCTYPE html>
-    <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Benchmark Chart</title>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0/dist/chart.min.js"></script>
-      </head>
-      <body>
-        <canvas id="myChart" width="600" height="400"></canvas>
-    
-        <script>
-          const benchmarkData = ${JSON.stringify(data)}
-    
-          const ctx = document.getElementById("myChart").getContext("2d");
-          function randomColor(){
-            return 'rgba('+Math.round(Math.random()*255)+','+Math.round(Math.random()*255)+','+Math.round(Math.random()*255)+',0.8)';
-          }
-          const data = {
-            labels: Object.keys(benchmarkData),
-            datasets: [
-              {
-                label: "startup(serverStartTime + onLoadTime) (Cold)",
-                data: Object.values(benchmarkData).map(
-                  (item) => item['startup(serverStartTime + onLoadTime)']
-                ),
-                backgroundColor: randomColor()
-              },
-              {
-                label: "startup(serverStartTime + onLoadTime) (Hot Cache)",
-                data: Object.values(benchmarkData).map(
-                  (item) => item['hotStartup(serverStartTime + onLoadTime)']
-                ),
-                backgroundColor: randomColor()
-              },
-              {
-                label: "BuildTime (Cold)",
-                data: Object.values(benchmarkData).map((item) => item.buildTime),
-                backgroundColor: randomColor()
-              },
-              {
-                label: "BuildTime (Hot Cache)",
-                data: Object.values(benchmarkData).map((item) => item.hotBuildTime),
-                backgroundColor: randomColor()
-              },
-              {
-                label: "rootHmr",
-                data: Object.values(benchmarkData).map((item) => item.rootHmr),
-                backgroundColor: randomColor()
-              },
-              {
-                label: "leafHmr",
-                data: Object.values(benchmarkData).map((item) => item.leafHmr),
-                backgroundColor: randomColor()
-              },
-            ],
-          };
-    
-          new Chart(ctx, {
-            type: "bar",
-            data: data,
-            options: {
-              responsive: true,
-              plugins: {
-                legend: {
-                  position: "top",
-                },
+  const chartTypes = ["full", "hmr", "startup", "build"];
+  for (const chartType of chartTypes) {
+    const page = await browser.newPage();
+    await page.setContent(`
+  <!DOCTYPE html>
+  <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <title>Benchmark Chart</title>
+      <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0/dist/chart.min.js"></script>
+    </head>
+    <body>
+      <canvas id="myChart" width="600" height="400"></canvas>
+  
+      <script>
+        const ctx = document.getElementById("myChart").getContext("2d");
+        function randomColor() {
+          return (
+            "rgba(" +
+            Math.round(Math.random() * 255) +
+            "," +
+            Math.round(Math.random() * 255) +
+            "," +
+            Math.round(Math.random() * 255) +
+            ",0.8)"
+          );
+        }
+
+        const data = {
+          labels: ${JSON.stringify(Object.keys(data))},
+          datasets: ${JSON.stringify(generateChartScript(data, chartType))},
+        };
+  
+        new Chart(ctx, {
+          type: "bar",
+          data: data,
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: "top",
               },
             },
-          });
-        </script>
-      </body>
-    </html>
-    
+          },
+        });
+      </script>
+    </body>
+  </html>
+  
   `);
-  const logger = new DefaultLogger();
-  logger.warn("Ready to start taking screenshots");
-  await new Promise((resolve) => setTimeout(() => resolve(true), 500));
-  await page.screenshot({ path: "chart.png" });
-  logger.info("Picture generated successfully ！");
+    const logger = new DefaultLogger();
+    logger.warn(
+      `Ready to start taking screenshots of ${chartType}.png Chart...`
+    );
+    await new Promise((resolve) => setTimeout(() => resolve(true), 500));
+    await page.screenshot({ path: `${chartType}.png` });
+    logger.info("Picture generated successfully ！");
+  }
 
   await browser.close();
 }
@@ -170,7 +147,107 @@ export function mergeAllVersions(data) {
   for (let i = 1; i < versionArray.length; i += 2) {
     const mainVersion = versionArray[i - 1];
     const hotVersion = versionArray[i];
-    console.log(mainVersion, hotVersion);
     mergeVersions(data, mainVersion, hotVersion);
   }
+}
+
+function generateChartScript(data, chartType) {
+  let datasets;
+
+  switch (chartType) {
+    case "hmr":
+      datasets = [
+        {
+          label: "rootHmr",
+          data: Object.values(data).map((item) => item.rootHmr),
+          backgroundColor: randomColor(),
+        },
+        {
+          label: "leafHmr",
+          data: Object.values(data).map((item) => item.leafHmr),
+          backgroundColor: randomColor(),
+        },
+      ];
+      break;
+
+    case "startup":
+      datasets = [
+        {
+          label: "Cold Startup",
+          data: Object.values(data).map(
+            (item) => item["startup(serverStartTime + onLoadTime)"]
+          ),
+          backgroundColor: randomColor(),
+        },
+        {
+          label: "Hot Cache Startup",
+          data: Object.values(data).map(
+            (item) => item["hotStartup(serverStartTime + onLoadTime)"]
+          ),
+          backgroundColor: randomColor(),
+        },
+      ];
+      break;
+
+    case "build":
+      datasets = [
+        {
+          label: "Cold Build",
+          data: Object.values(data).map((item) => item.buildTime),
+          backgroundColor: randomColor(),
+        },
+        {
+          label: "Hot Cache Build",
+          data: Object.values(data).map((item) => item.hotBuildTime),
+          backgroundColor: randomColor(),
+        },
+      ];
+      break;
+
+    default:
+      // 'full' or unknown chart type
+      datasets = [
+        {
+          label: "Cold Startup",
+          data: Object.values(data).map(
+            (item) => item["startup(serverStartTime + onLoadTime)"]
+          ),
+          backgroundColor: randomColor(),
+        },
+        {
+          label: "Hot Cache Startup",
+          data: Object.values(data).map(
+            (item) => item["hotStartup(serverStartTime + onLoadTime)"]
+          ),
+          backgroundColor: randomColor(),
+        },
+        {
+          label: "Cold Build",
+          data: Object.values(data).map((item) => item.buildTime),
+          backgroundColor: randomColor(),
+        },
+        {
+          label: "Hot Cache Build",
+          data: Object.values(data).map((item) => item.hotBuildTime),
+          backgroundColor: randomColor(),
+        },
+        {
+          label: "rootHmr",
+          data: Object.values(data).map((item) => item.rootHmr),
+          backgroundColor: randomColor(),
+        },
+        {
+          label: "leafHmr",
+          data: Object.values(data).map((item) => item.leafHmr),
+          backgroundColor: randomColor(),
+        },
+      ];
+  }
+  return datasets;
+}
+
+export function randomColor() {
+  return `rgba(${Math.round(Math.random() * 255)},${Math.round(
+    Math.random() * 255
+  )},${Math.round(Math.random() * 255)},0.8)`;
 }
