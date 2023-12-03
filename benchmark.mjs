@@ -65,6 +65,7 @@ class BuildTool {
         const normalizedData = data.toString("utf8").replace(/\r\n/g, "\n");
         const match = this.startedRegex.exec(normalizedData);
         if (match) {
+          // TODO REAL COMPLATION TIME
           // Adaptation windows ANSI  color
           // const cleanedMatch = match.map((part) => this.removeANSIColors(part));
           // console.log(cleanedMatch);
@@ -193,26 +194,26 @@ const buildTools = [
     "vite/bin/vite.js",
     true
   ),
-  new BuildTool(
-    "Turbopack 14.0.3",
-    3000,
-    "start:turbopack",
-    /\s*Ready\s*in(.+)(s|ms)/,
+  // new BuildTool(
+  //   "Turbopack 14.0.3",
+  //   3000,
+  //   "start:turbopack",
+  //   /\s*Ready\s*in(.+)(s|ms)/,
 
-    "build:turbopack",
-    /prerendered\s+as\s+static\s+content/,
-    "next/dist/bin/next"
-  ),
-  new BuildTool(
-    "Turbopack 14.0.3 (Hot)",
-    3000,
-    "start:turbopack",
-    /\s*Ready\s*in(.+)(s|ms)/,
-    "build:turbopack",
-    /prerendered\s+as\s+static\s+content/,
-    "next/dist/bin/next",
-    true
-  ),
+  //   "build:turbopack",
+  //   /prerendered\s+as\s+static\s+content/,
+  //   "next/dist/bin/next"
+  // ),
+  // new BuildTool(
+  //   "Turbopack 14.0.3 (Hot)",
+  //   3000,
+  //   "start:turbopack",
+  //   /\s*Ready\s*in(.+)(s|ms)/,
+  //   "build:turbopack",
+  //   /prerendered\s+as\s+static\s+content/,
+  //   "next/dist/bin/next",
+  //   true
+  // ),
   new BuildTool(
     "Webpack(babel) 5.89.0",
     8081,
