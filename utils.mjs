@@ -39,18 +39,28 @@ export async function getChartPic(data) {
           labels: ${JSON.stringify(Object.keys(data))},
           datasets: ${JSON.stringify(generateChartScript(data, chartType))},
         };
+
+        const options = {
+          responsive: true,
+          indexAxis: 'y',
+          // Elements options apply to all of the options unless overridden in a dataset
+          // In this case, we are setting the border of each horizontal bar to be 2px wide
+          elements: {
+            bar: {
+              borderWidth: 1,
+            }
+          },
+          plugins: {
+            legend: {
+              position: "top",
+            },
+          },
+        };
   
         new Chart(ctx, {
           type: "bar",
           data: data,
-          options: {
-            responsive: true,
-            plugins: {
-              legend: {
-                position: "top",
-              },
-            },
-          },
+          options: options
         });
       </script>
     </body>

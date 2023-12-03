@@ -6,8 +6,8 @@ import kill from "tree-kill";
 import { DefaultLogger } from "@farmfe/core";
 import { deleteCacheFiles, mergeAllVersions, getChartPic } from "./utils.mjs";
 
-const startConsole = "console.log('Farm Start Time', Date.now());";
-const startConsoleRegex = /Farm Start Time (\d+)/;
+const startConsole = "console.log('Start Time', Date.now());";
+const startConsoleRegex = /Start Time (\d+)/;
 const logger = new DefaultLogger();
 
 class BuildTool {
