@@ -6,7 +6,7 @@ import kill from "tree-kill";
 import { DefaultLogger } from "@farmfe/core";
 import { deleteCacheFiles, mergeAllVersions, getChartPic } from "./utils.mjs";
 
-const startConsole = "console.log('Start Time', Date.now());";
+const startConsole = "console.log('Farm Start Time', Date.now());";
 const startConsoleRegex = /Farm Start Time (\d+)/;
 const logger = new DefaultLogger();
 
@@ -44,6 +44,10 @@ class BuildTool {
     }
   }
 
+  removeANSIColors(input) {
+    return input.replace(/\x1B\[[0-9;]*[mGKH]/g, "");
+  }
+
   async startServer() {
     return new Promise((resolve, reject) => {
       const child = spawn(`npm`, ["run", this.script], {
@@ -61,17 +65,20 @@ class BuildTool {
         const normalizedData = data.toString("utf8").replace(/\r\n/g, "\n");
         const match = this.startedRegex.exec(normalizedData);
         if (match) {
-          let result;
-          if (typeof match[1] === "number") {
-            result = match[1];
-          } else if (typeof match[1] === "string") {
-            result = parseFloat(match[1].replace(/[a-zA-Z ]/g, ""));
-          }
+          // Adaptation windows ANSI  color
+          // const cleanedMatch = match.map((part) => this.removeANSIColors(part));
+          // console.log(cleanedMatch);
+          // let result;
+          // if (typeof cleanedMatch[1] === "number") {
+          //   result = cleanedMatch[1];
+          // } else if (typeof cleanedMatch[1] === "string") {
+          //   result = parseFloat(cleanedMatch[1].replace(/[a-zA-Z ]/g, ""));
+          // }
           if (!startTime) {
             throw new Error("Start time not found");
           }
-          // const time = Date.now() - startTime;
-          resolve(result);
+          const time = Date.now() - startTime;
+          resolve(time);
         }
       });
       child.on("error", (error) => {
