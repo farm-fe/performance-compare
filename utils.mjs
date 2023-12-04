@@ -7,73 +7,97 @@ const logger = new DefaultLogger();
 export async function getChartPic(data) {
   const browser = await puppeteer.launch();
   const chartTypes = ["full", "hmr", "startup", "build"];
-  for (const chartType of chartTypes) {
+  async function generateChartPage(chartData) {
     const page = await browser.newPage();
     await page.setContent(`
-  <!DOCTYPE html>
-  <html lang="en">
-    <head>
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Benchmark Chart</title>
-      <script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0/dist/chart.min.js"></script>
-    </head>
-    <body>
-      <canvas id="myChart" width="600" height="400"></canvas>
-  
-      <script>
-        const ctx = document.getElementById("myChart").getContext("2d");
-        function randomColor() {
-          return (
-            "rgba(" +
-            Math.round(Math.random() * 255) +
-            "," +
-            Math.round(Math.random() * 255) +
-            "," +
-            Math.round(Math.random() * 255) +
-            ",0.8)"
-          );
-        }
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <title>Benchmark Chart</title>
+          <script src="https://cdn.jsdelivr.net/npm/echarts"></script>
+        </head>
+        <body>
+          <div id="myChart" style="width: 100%; height: 600px;"></div>
 
-        const data = {
-          labels: ${JSON.stringify(Object.keys(data))},
-          datasets: ${JSON.stringify(generateChartScript(data, chartType))},
-        };
+          <script>
+            const finallyData = ${JSON.stringify(chartData)};
+            const keys = Object.keys(finallyData);
+            const values = keys.map(key => finallyData[key]);
 
-        const options = {
-          responsive: true,
-          indexAxis: 'y',
-          // Elements options apply to all of the options unless overridden in a dataset
-          // In this case, we are setting the border of each horizontal bar to be 2px wide
-          elements: {
-            bar: {
-              borderWidth: 1,
+            const chartContainer = document.getElementById("myChart");
+            const myChart = echarts.init(chartContainer);
+            const seriesData = Object.keys(values[0]).map((label, index) => ({
+              name: label,
+              type: 'bar',
+              data: keys.map(key => finallyData[key][label]),
+              itemStyle: {
+                color: randomColor(),
+              },
+              label: {
+                show: true,
+                position: 'top',
+              },
+            }));
+
+            function randomColor() {
+              return "rgba(" +
+                Math.round(Math.random() * 255) +
+                "," +
+                Math.round(Math.random() * 255) +
+                "," +
+                Math.round(Math.random() * 255) +
+                ",0.8)";
             }
-          },
-          plugins: {
-            legend: {
-              position: "top",
-            },
-          },
-        };
-  
-        new Chart(ctx, {
-          type: "bar",
-          data: data,
-          options: options
-        });
-      </script>
-    </body>
-  </html>
-  
-  `);
+
+            function renderChart() {
+              const option = {
+                xAxis: {
+                  type: 'category',
+                  data: keys,
+                  axisLabel: {
+                    interval: 0,
+                  },
+                },
+                yAxis: {
+                  type: 'value',
+                },
+                series: seriesData,
+                legend: {
+                  data: Object.keys(values[0]),
+                },
+              };
+
+              myChart.setOption(option);
+            }
+
+            renderChart();
+
+            window.addEventListener('resize', function () {
+              myChart.resize();
+            });
+          </script>
+        </body>
+      </html>
+    `);
+
+    return page;
+  }
+
+  for (const chartType of chartTypes) {
+    const chartData = generateChartScript(data, chartType);
+    const page = await generateChartPage(chartData);
+
     const logger = new DefaultLogger();
     logger.warn(
       `Ready to start taking screenshots of ${chartType}.png Chart...`
     );
-    await new Promise((resolve) => setTimeout(() => resolve(true), 500));
+
+    await new Promise((resolve) => setTimeout(() => resolve(true), 1000));
     await page.screenshot({ path: `${chartType}.png` });
-    logger.info("Picture generated successfully ！");
+
+    logger.info("Picture generated successfully！");
   }
 
   await browser.close();
@@ -161,99 +185,60 @@ export function mergeAllVersions(data) {
   }
 }
 
-function generateChartScript(data, chartType) {
-  let datasets;
-
-  switch (chartType) {
+function generateChartScript(data, type) {
+  let fData = [];
+  switch (type) {
+    case "full":
+      fData = Object.keys(data).map((key) => ({
+        [key]: {
+          "startup(serverStartTime + onLoadTime)":
+            data[key]["startup(serverStartTime + onLoadTime)"],
+          rootHmr: data[key]["rootHmr"],
+          leafHmr: data[key]["leafHmr"],
+          buildTime: data[key]["buildTime"],
+          hotBuildTime: data[key]["hotBuildTime"],
+          "hotStartup(serverStartTime + onLoadTime)":
+            data[key]["hotStartup(serverStartTime + onLoadTime)"],
+        },
+      }));
+      break;
     case "hmr":
-      datasets = [
-        {
-          label: "rootHmr",
-          data: Object.values(data).map((item) => item.rootHmr),
-          backgroundColor: randomColor(),
+      fData = Object.keys(data).map((key) => ({
+        [key]: {
+          rootHmr: data[key]["rootHmr"],
+          leafHmr: data[key]["leafHmr"],
         },
-        {
-          label: "leafHmr",
-          data: Object.values(data).map((item) => item.leafHmr),
-          backgroundColor: randomColor(),
-        },
-      ];
+      }));
       break;
 
     case "startup":
-      datasets = [
-        {
-          label: "Cold Startup",
-          data: Object.values(data).map(
-            (item) => item["startup(serverStartTime + onLoadTime)"]
-          ),
-          backgroundColor: randomColor(),
+      fData = Object.keys(data).map((key) => ({
+        [key]: {
+          "startup(serverStartTime + onLoadTime)":
+            data[key]["startup(serverStartTime + onLoadTime)"],
+          "hotStartup(serverStartTime + onLoadTime)":
+            data[key]["hotStartup(serverStartTime + onLoadTime)"],
         },
-        {
-          label: "Hot Cache Startup",
-          data: Object.values(data).map(
-            (item) => item["hotStartup(serverStartTime + onLoadTime)"]
-          ),
-          backgroundColor: randomColor(),
-        },
-      ];
+      }));
       break;
 
     case "build":
-      datasets = [
-        {
-          label: "Cold Build",
-          data: Object.values(data).map((item) => item.buildTime),
-          backgroundColor: randomColor(),
+      fData = Object.keys(data).map((key) => ({
+        [key]: {
+          buildTime: data[key]["buildTime"],
+          hotBuildTime: data[key]["hotBuildTime"],
         },
-        {
-          label: "Hot Cache Build",
-          data: Object.values(data).map((item) => item.hotBuildTime),
-          backgroundColor: randomColor(),
-        },
-      ];
+      }));
       break;
 
     default:
-      // 'full' or unknown chart type
-      datasets = [
-        {
-          label: "Cold Startup",
-          data: Object.values(data).map(
-            (item) => item["startup(serverStartTime + onLoadTime)"]
-          ),
-          backgroundColor: randomColor(),
-        },
-        {
-          label: "Hot Cache Startup",
-          data: Object.values(data).map(
-            (item) => item["hotStartup(serverStartTime + onLoadTime)"]
-          ),
-          backgroundColor: randomColor(),
-        },
-        {
-          label: "Cold Build",
-          data: Object.values(data).map((item) => item.buildTime),
-          backgroundColor: randomColor(),
-        },
-        {
-          label: "Hot Cache Build",
-          data: Object.values(data).map((item) => item.hotBuildTime),
-          backgroundColor: randomColor(),
-        },
-        {
-          label: "rootHmr",
-          data: Object.values(data).map((item) => item.rootHmr),
-          backgroundColor: randomColor(),
-        },
-        {
-          label: "leafHmr",
-          data: Object.values(data).map((item) => item.leafHmr),
-          backgroundColor: randomColor(),
-        },
-      ];
+      fData = [];
   }
-  return datasets;
+  return fData.reduce((result, item) => {
+    const key = Object.keys(item)[0];
+    result[key] = item[key];
+    return result;
+  }, {});
 }
 
 export function randomColor() {

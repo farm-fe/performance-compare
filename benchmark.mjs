@@ -65,21 +65,20 @@ class BuildTool {
         const normalizedData = data.toString("utf8").replace(/\r\n/g, "\n");
         const match = this.startedRegex.exec(normalizedData);
         if (match) {
-          // TODO REAL COMPLATION TIME
+          // TODO REAL COMPILATION TIME
           // Adaptation windows ANSI  color
-          // const cleanedMatch = match.map((part) => this.removeANSIColors(part));
-          // console.log(cleanedMatch);
-          // let result;
-          // if (typeof cleanedMatch[1] === "number") {
-          //   result = cleanedMatch[1];
-          // } else if (typeof cleanedMatch[1] === "string") {
-          //   result = parseFloat(cleanedMatch[1].replace(/[a-zA-Z ]/g, ""));
-          // }
+          const cleanedMatch = match.map((part) => this.removeANSIColors(part));
+          let result;
+          if (typeof cleanedMatch[1] === "number") {
+            result = cleanedMatch[1];
+          } else if (typeof cleanedMatch[1] === "string") {
+            result = parseFloat(cleanedMatch[1].replace(/[a-zA-Z ]/g, ""));
+          }
           if (!startTime) {
             throw new Error("Start time not found");
           }
           const time = Date.now() - startTime;
-          resolve(time);
+          resolve(result);
         }
       });
       child.on("error", (error) => {
@@ -138,7 +137,7 @@ class BuildTool {
 
 const buildTools = [
   new BuildTool(
-    "Farm 0.14.12",
+    "Farm 0.14.14",
     9000,
     "start",
     /Ready\s*in\s*(.+)ms/,
@@ -237,7 +236,7 @@ const buildTools = [
 
 const browser = await puppeteer.launch();
 
-const n = 3;
+const n = 1;
 
 logger.info("Running benchmark " + n + " times, please wait...");
 
