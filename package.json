@@ -4,21 +4,21 @@
   "dependencies": {
     "clsx": "^1.2.1",
     "playwright": "^1.36.0",
+    "puppeteer": "^21.5.2",
     "react": "18",
     "react-dom": "18",
-    "tree-kill": "^1.2.2",
-    "puppeteer": "^19.7.4"
+    "tree-kill": "^1.2.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.21.0",
+    "@babel/core": "7.23.5",
     "@babel/preset-env": "^7.20.2",
     "@babel/preset-react": "^7.18.6",
     "@babel/preset-typescript": "^7.21.0",
-    "@farmfe/cli": "^0.5.10",
-    "@farmfe/core": "^0.14.6",
-    "@farmfe/plugin-react": "^0.4.1",
+    "@farmfe/cli": "0.5.11",
+    "@farmfe/core": "0.14.14",
+    "@farmfe/plugin-react": "^0.4.4",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.10",
-    "@rspack/cli": "0.4.0",
+    "@rspack/cli": "0.4.1",
     "@rspack/plugin-react-refresh": "0.3.14",
     "@types/react": "18",
     "@types/react-dom": "18",
@@ -32,7 +32,7 @@
     "parcel": "^2.9.3",
     "react-refresh": "^0.14.0",
     "style-loader": "^3.3.1",
-    "vite": "5.0.2",
+    "vite": "5.0.4",
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1"
@@ -47,6 +47,7 @@
     "build:webpack": "webpack build --mode production",
     "start:rspack": "rspack serve",
     "build:rspack": "rspack build",
+    "preview:rspack": "rspack preview",
     "start:turbopack": "next dev --turbo",
     "build:turbopack": "next build"
   }

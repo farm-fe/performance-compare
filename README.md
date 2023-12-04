@@ -12,7 +12,17 @@ Benchmarks for [Farm](https://github.com/farm-fe/farm), Webpack, Vite, Rspack an
 | Rspack    | 831ms       | 104ms          | 96ms           |          724ms            |
 | Farm      | 403ms       | 11ms           | 10ms           |           288ms           |
 
-![xx](./assets/benchmark.jpg)
+### Full Benchmark
+![xx](./full-linux.png)
+
+### HMR Benchmark
+![xx](./hmr-linux.png)
+
+### Startup Benchmark
+![xx](./startup-linux.png)
+
+### Production Build Benchmark
+![xx](./build-linux.png)
 
 Run benchmarks:
 
