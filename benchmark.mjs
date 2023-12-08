@@ -3,12 +3,30 @@ import { appendFile, readFileSync, writeFileSync } from "fs";
 import path from "path";
 import puppeteer from "puppeteer";
 import kill from "tree-kill";
-import { DefaultLogger } from "@farmfe/core";
+import {
+  DefaultLogger,
+  magenta,
+  purple,
+  green,
+  yellow,
+  cyan,
+} from "@farmfe/core";
 import { deleteCacheFiles, mergeAllVersions, getChartPic } from "./utils.mjs";
 
 const startConsole = "console.log('Start Time', Date.now());";
-const startConsoleRegex = /Start Time (\d+)/;
+// const startConsoleRegex = /Start Time (\d+)/;
 const logger = new DefaultLogger();
+
+const brandColor = new Map([
+  ["Farm 0.14.17", purple],
+  ["Farm 0.14.17 (Hot)", purple],
+  ["Rspack 0.4.1", green],
+  ["Rspack 0.4.1 (Hot)", green],
+  ["Vite 5.0.5", yellow],
+  ["Vite 5.0.5 (Hot)", yellow],
+  ["Webpack(babel) 5.89.0", cyan],
+  ["Webpack(babel) 5.89.0 (Hot)", cyan],
+]);
 
 class BuildTool {
   constructor(
@@ -29,7 +47,10 @@ class BuildTool {
     this.buildRegex = buildRegex;
     this.skipHmr = skipHmr;
     this.binFilePath = path.join(process.cwd(), "node_modules", binFilePath);
-    logger.info("hack bin file for", this.name, "under", this.binFilePath);
+    logger.info("hack bin file for", this.name, "under", this.binFilePath, {
+      name: this.name,
+      brandColor: brandColor.get(this.name),
+    });
     this.hackBinFile();
   }
 
@@ -55,13 +76,8 @@ class BuildTool {
         shell: true,
       });
       this.child = child;
-      let startTime = null;
 
       child.stdout.on("data", (data) => {
-        const startMatch = startConsoleRegex.exec(data.toString());
-        if (startMatch) {
-          startTime = startMatch[1];
-        }
         const normalizedData = data.toString("utf8").replace(/\r\n/g, "\n");
         const match = this.startedRegex.exec(normalizedData);
         if (match) {
@@ -74,10 +90,6 @@ class BuildTool {
           } else if (typeof cleanedMatch[1] === "string") {
             result = parseFloat(cleanedMatch[1].replace(/[a-zA-Z ]/g, ""));
           }
-          if (!startTime) {
-            throw new Error("Start time not found");
-          }
-          const time = Date.now() - startTime;
           resolve(result);
         }
       });
@@ -88,7 +100,11 @@ class BuildTool {
       child.on("exit", (code) => {
         if (code !== 0 && code !== null) {
           logger.info(
-            `(${this.name} run ${this.script} failed) child process exited with code ${code}`
+            `(run ${this.script} failed) child process exited with code ${code}`,
+            {
+              name: this.name,
+              brandColor: brandColor.get(this.name),
+            }
           );
           reject(code);
         }
@@ -107,24 +123,25 @@ class BuildTool {
 
   async build() {
     return new Promise(async (resolve) => {
-      logger.info(`Running build command: ${this.buildScript}`);
-      let startTime = null;
-
+      logger.info(`Running build command: ${this.buildScript}`, {
+        name: this.name,
+        brandColor: brandColor.get(this.name),
+      });
       const child = spawn(`npm`, ["run", this.buildScript], {
         stdio: ["pipe"],
         shell: true,
       });
       child.stdout.on("data", (data) => {
-        const startMatch = startConsoleRegex.exec(data.toString("utf8"));
-        if (startMatch) {
-          startTime = startMatch[1];
-        }
         const match = this.buildRegex.exec(data.toString("utf8"));
         if (match) {
-          if (!startTime) {
-            throw new Error("Start time not found");
+          const cleanedMatch = match.map((part) => this.removeANSIColors(part));
+          let result;
+          if (typeof cleanedMatch[1] === "number") {
+            result = cleanedMatch[1];
+          } else if (typeof cleanedMatch[1] === "string") {
+            result = parseFloat(cleanedMatch[1].replace(/[a-zA-Z ]/g, ""));
           }
-          resolve(Date.now() - startTime);
+          resolve(match[2] === "s" ? result * 1000 : result);
         }
       });
       return new Promise((resolve, reject) => {
@@ -137,21 +154,21 @@ class BuildTool {
 
 const buildTools = [
   new BuildTool(
-    "Farm 0.14.14",
+    "Farm 0.14.17",
     9000,
     "start",
-    /Ready\s*in\s*(.+)ms/,
+    /Ready\s*in\s*(.+)(s|ms)/,
     "build",
-    /completed\s*in\s*(.+)ms/,
+    /completed\s*in\s*(\d+)(m?ms)/,
     "@farmfe/cli/bin/farm.mjs"
   ),
   new BuildTool(
-    "Farm 0.14.12 (Hot)",
+    "Farm 0.14.17 (Hot)",
     9000,
     "start",
-    /Ready\s*in\s*(.+)ms/,
+    /Ready\s*in\s*(.+)(s|ms)/,
     "build",
-    /completed\s*in\s*(.+)ms/,
+    /completed\s*in\s*(\d+)(m?ms)/,
     "@farmfe/cli/bin/farm.mjs",
     true
   ),
@@ -175,7 +192,7 @@ const buildTools = [
     true
   ),
   new BuildTool(
-    "Vite 5.0.4",
+    "Vite 5.0.5",
     5173,
     "start:vite",
     /ready\s*in\s*(.+)(s|ms)/,
@@ -184,7 +201,7 @@ const buildTools = [
     "vite/bin/vite.js"
   ),
   new BuildTool(
-    "Vite 5.0.4 (Hot)",
+    "Vite 5.0.5 (Hot)",
     5173,
     "start:vite",
     /ready\s*in\s*(.+)(s|ms)/,
@@ -219,7 +236,7 @@ const buildTools = [
     "start:webpack",
     /compiled\s+.+\sin\s+(\d+)\s+ms/,
     "build:webpack",
-    /in\s+(\d+)\s+ms/,
+    /in\s+(\d+)\s+(ms|s)/,
     "webpack-cli/bin/cli.js"
   ),
   new BuildTool(
@@ -228,7 +245,8 @@ const buildTools = [
     "start:webpack",
     /compiled\s+.+\sin\s+(\d+)\s+ms/,
     "build:webpack",
-    /in\s+(\d+)\s+ms/,
+    /in\s+(\d+)\s+(ms|s)/,
+
     "webpack-cli/bin/cli.js",
     true
   ),
@@ -238,7 +256,9 @@ const browser = await puppeteer.launch();
 
 const n = 3;
 
-logger.info("Running benchmark " + n + " times, please wait...");
+logger.info("Running benchmark " + n + " times, please wait...", {
+  brandColor: magenta,
+});
 
 const totalResults = [];
 
@@ -258,10 +278,10 @@ async function runBenchmark() {
 
     page.on("load", () => {
       const loadTime = Date.now() - start;
-      logger.info(
-        buildTool.name,
-        ": startup time: " + (time + loadTime) + "ms"
-      );
+      logger.info(": startup time: " + (time + loadTime) + "ms", {
+        name: buildTool.name,
+        brandColor: brandColor.get(buildTool.name),
+      });
 
       if (!results[buildTool.name]) {
         results[buildTool.name] = {};
@@ -273,7 +293,10 @@ async function runBenchmark() {
       results[buildTool.name].onLoadTime = loadTime;
     });
 
-    logger.info("Navigating to", `http://localhost:${buildTool.port}`);
+    logger.info("Navigating to", `http://localhost:${buildTool.port}`, {
+      name: buildTool.name,
+      brandColor: brandColor.get(buildTool.name),
+    });
 
     await page.goto(`http://localhost:${buildTool.port}`, {
       timeout: 60000,
@@ -297,7 +320,10 @@ async function runBenchmark() {
       if (event.text().includes("root hmr")) {
         const clientDateNow = /(\d+)/.exec(event.text())[1];
         const hmrTime = clientDateNow - hmrRootStart;
-        logger.info(buildTool.name, " Root HMR time: " + hmrTime + "ms");
+        logger.info(" Root HMR time: " + hmrTime + "ms", {
+          name: buildTool.name,
+          brandColor: brandColor.get(buildTool.name),
+        });
 
         results[buildTool.name].rootHmr = hmrTime;
         if (isFinished()) {
@@ -306,7 +332,10 @@ async function runBenchmark() {
         }
       } else if (event.text().includes("leaf hmr")) {
         const hmrTime = Date.now() - hmrLeafStart;
-        logger.info(buildTool.name, " Leaf HMR time: " + hmrTime + "ms");
+        logger.info(" Leaf HMR time: " + hmrTime + "ms", {
+          name: buildTool.name,
+          brandColor: brandColor.get(buildTool.name),
+        });
         results[buildTool.name].leafHmr = hmrTime;
         if (isFinished()) {
           page.close();
@@ -367,10 +396,17 @@ async function runBenchmark() {
     // }
 
     await new Promise((resolve) => setTimeout(resolve, 500));
-    logger.info("close Server");
-    logger.info("prepare build");
+    logger.info("close Server", {
+      brandColor: brandColor.get(buildTool.name),
+    });
+    logger.info("prepare build", {
+      brandColor: brandColor.get(buildTool.name),
+    });
     const buildTime = await buildTool.build();
-    logger.info(buildTool.name, ": build time: " + buildTime + "ms");
+    logger.info(": build time: " + buildTime + "ms", {
+      name: buildTool.name,
+      brandColor: brandColor.get(buildTool.name),
+    });
     results[buildTool.name].buildTime = buildTime;
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
@@ -379,7 +415,7 @@ async function runBenchmark() {
 }
 
 const averageResults = {};
-
+const chart = {};
 const chartData = {};
 for (const result of totalResults) {
   for (const [name, values] of Object.entries(result)) {
@@ -391,27 +427,34 @@ for (const result of totalResults) {
       chartData[name] = {};
     }
 
+    if (!chart[name]) {
+      chart[name] = {};
+    }
+
     for (const [key, value] of Object.entries(values)) {
       if (!averageResults[name][key]) {
         averageResults[name][key] = "Calculation error Time ！";
       }
 
       if (!chartData[name][key]) {
-        chartData[name][key] = 0; // 初始化为纯数字
+        chartData[name][key] = 0;
+        chart[name][key] = 0;
       }
 
       chartData[name][key] += Number(value);
       averageResults[name][key] =
         Math.floor(chartData[name][key] / totalResults.length) + "ms";
+      chart[name][key] = Math.floor(chartData[name][key] / totalResults.length);
     }
   }
 }
 
-mergeAllVersions(chartData);
+mergeAllVersions(chart);
 
-logger.info("average results of " + totalResults.length + " runs:");
-const benchmarkData = { ...chartData };
-
+logger.info("average results of " + totalResults.length + " runs:", {
+  brandColor: magenta,
+});
+const benchmarkData = { ...chart };
 await getChartPic(benchmarkData);
 console.table(averageResults);
 

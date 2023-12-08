@@ -37,7 +37,10 @@ export async function getChartPic(data) {
               },
               label: {
                 show: true,
-                position: 'top',
+                position: "right",
+                textStyle: {
+                  fontSize: 16,
+                },
               },
             }));
 
@@ -54,19 +57,19 @@ export async function getChartPic(data) {
             function renderChart() {
               const option = {
                 xAxis: {
-                  type: 'category',
+                  type: "value",
+                },
+                yAxis: {
+                  type: "category",
                   data: keys,
                   axisLabel: {
                     interval: 0,
                   },
                 },
-                yAxis: {
-                  type: 'value',
-                },
-                series: seriesData,
                 legend: {
                   data: Object.keys(values[0]),
                 },
+                series: seriesData,
               };
 
               myChart.setOption(option);
@@ -157,7 +160,6 @@ export function mergeVersions(data, mainVersion, hotVersion) {
     ...mainData,
   };
 
-  // 合并属性
   for (const key in hotData) {
     if (!(key in mainData) || key.endsWith("(Hot)")) {
       mergedVersion[key] = hotData[key];
