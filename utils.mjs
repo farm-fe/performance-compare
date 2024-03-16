@@ -1,4 +1,4 @@
-import { DefaultLogger } from "@farmfe/core";
+import { Logger as DefaultLogger } from "@farmfe/core";
 import { rmSync, statSync } from "node:fs";
 import path from "node:path";
 import puppeteer from "puppeteer";

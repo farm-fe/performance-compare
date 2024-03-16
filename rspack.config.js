@@ -15,6 +15,9 @@ module.exports = {
   entry: {
     main: "./src/index.tsx",
   },
+  resolve: {
+    extensions: [".ts", ".tsx", ".js", ".jsx", ".css"],
+  },
   watchOptions: {
     poll: 0,
     aggregateTimeout: 0,

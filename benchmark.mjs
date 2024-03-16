@@ -4,7 +4,7 @@ import path from "path";
 import puppeteer from "puppeteer";
 import kill from "tree-kill";
 import {
-  DefaultLogger,
+  Logger as DefaultLogger,
   magenta,
   purple,
   green,
@@ -18,10 +18,10 @@ const startConsole = "console.log('Start Time', Date.now());";
 const logger = new DefaultLogger();
 
 const brandColor = new Map([
-  ["Farm 0.14.17", purple],
-  ["Farm 0.14.17 (Hot)", purple],
-  ["Rspack 0.4.1", green],
-  ["Rspack 0.4.1 (Hot)", green],
+  ["Farm 1.0.0", purple],
+  ["Farm 1.0.0 (Hot)", purple],
+  ["Rspack 0.5.7", green],
+  ["Rspack 0.5.7 (Hot)", green],
   ["Vite 5.0.5", yellow],
   ["Vite 5.0.5 (Hot)", yellow],
   ["Webpack(babel) 5.89.0", cyan],
@@ -154,7 +154,7 @@ class BuildTool {
 
 const buildTools = [
   new BuildTool(
-    "Farm 0.14.17",
+    "Farm 1.0.0",
     9000,
     "start",
     /Ready\s*in\s*(.+)(s|ms)/,
@@ -163,7 +163,7 @@ const buildTools = [
     "@farmfe/cli/bin/farm.mjs"
   ),
   new BuildTool(
-    "Farm 0.14.17 (Hot)",
+    "Farm 1.0.0 (Hot)",
     9000,
     "start",
     /Ready\s*in\s*(.+)(s|ms)/,
@@ -173,19 +173,19 @@ const buildTools = [
     true
   ),
   new BuildTool(
-    "Rspack 0.4.1",
+    "Rspack 0.5.7",
     8080,
     "start:rspack",
-    /in\s+(.+)(s|ms)/,
+    /in\s+(.+) (s|ms)/,
     "build:rspack",
     /in\s+(.+) (s|ms)/,
     "@rspack/cli/bin/rspack"
   ),
   new BuildTool(
-    "Rspack 0.4.1 (Hot)",
+    "Rspack 0.5.7 (Hot)",
     8080,
     "start:rspack",
-    /in\s+(.+)(s|ms)/,
+    /in\s+(.+) (s|ms)/,
     "build:rspack",
     /in (.+) (s|ms)/,
     "@rspack/cli/bin/rspack",
