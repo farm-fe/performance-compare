@@ -6,7 +6,7 @@ export default defineConfig({
     // minify: {
     //   mode: "minify-resource-pot"
     // },
-    persistentCache: false,
+    // persistentCache: false,
     // partialBundling: {
     //   enforceResources: [
     //     {
