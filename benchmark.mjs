@@ -154,7 +154,7 @@ class BuildTool {
 
 const buildTools = [
   new BuildTool(
-    "Farm 1.0.0",
+    "Farm 1.1.7",
     9000,
     "start",
     /Ready\s*in\s*(.+)(s|ms)/,
@@ -163,7 +163,7 @@ const buildTools = [
     "@farmfe/cli/bin/farm.mjs"
   ),
   new BuildTool(
-    "Farm 1.0.0 (Hot)",
+    "Farm 1.1.7 (Hot)",
     9000,
     "start",
     /Ready\s*in\s*(.+)(s|ms)/,
@@ -173,7 +173,7 @@ const buildTools = [
     true
   ),
   new BuildTool(
-    "Rspack 0.5.7",
+    "Rspack 0.6.5",
     8080,
     "start:rspack",
     /in\s+(.+) (s|ms)/,
@@ -182,7 +182,7 @@ const buildTools = [
     "@rspack/cli/bin/rspack"
   ),
   new BuildTool(
-    "Rspack 0.5.7 (Hot)",
+    "Rspack 0.6.5 (Hot)",
     8080,
     "start:rspack",
     /in\s+(.+) (s|ms)/,
@@ -192,7 +192,7 @@ const buildTools = [
     true
   ),
   new BuildTool(
-    "Vite 5.0.5",
+    "Vite 6.0.0-alpha",
     5173,
     "start:vite",
     /ready\s*in\s*(.+)(s|ms)/,
@@ -201,7 +201,7 @@ const buildTools = [
     "vite/bin/vite.js"
   ),
   new BuildTool(
-    "Vite 5.0.5 (Hot)",
+    "Vite 6.0.0-alpha (Hot)",
     5173,
     "start:vite",
     /ready\s*in\s*(.+)(s|ms)/,
@@ -231,7 +231,7 @@ const buildTools = [
   //   true
   // ),
   new BuildTool(
-    "Webpack(babel) 5.89.0",
+    "Webpack(babel) 5.91.0",
     8081,
     "start:webpack",
     /compiled\s+.+\sin\s+(\d+)\s+ms/,
@@ -240,7 +240,7 @@ const buildTools = [
     "webpack-cli/bin/cli.js"
   ),
   new BuildTool(
-    "Webpack(babel) 5.89.0 (Hot)",
+    "Webpack(babel) 5.91.0 (Hot)",
     8081,
     "start:webpack",
     /compiled\s+.+\sin\s+(\d+)\s+ms/,
