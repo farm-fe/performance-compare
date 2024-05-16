@@ -3,9 +3,9 @@ import { rmSync, statSync } from "node:fs";
 import path from "node:path";
 import puppeteer from "puppeteer";
 
-const logger = new DefaultLogger();
+const logger = new DefaultLogger({name: "Benchmark"});
 export async function getChartPic(data) {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({ headless: "new" });
   const chartTypes = ["full", "hmr", "startup", "build"];
   async function generateChartPage(chartData) {
     const page = await browser.newPage();
@@ -92,7 +92,7 @@ export async function getChartPic(data) {
     const chartData = generateChartScript(data, chartType);
     const page = await generateChartPage(chartData);
 
-    const logger = new DefaultLogger();
+    const logger = new DefaultLogger({name: "Benchmark"});
     logger.warn(
       `Ready to start taking screenshots of ${chartType}.png Chart...`
     );
