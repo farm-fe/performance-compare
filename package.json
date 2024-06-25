@@ -24,7 +24,7 @@
     "@rspack/plugin-react-refresh": "0.5.7",
     "@types/react": "18",
     "@types/react-dom": "18",
-    "@vitejs/plugin-react": "^4.2.1",
+    "@vitejs/plugin-react-swc": "^3.7.0",
     "babel-loader": "^9.1.2",
     "core-js": "^3.31.0",
     "css-loader": "^6.7.3",
