@@ -13,27 +13,22 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
+        test: /\.(js|mjs|jsx|ts|tsx)$/,
+        exclude: /(node_modules)/,
         use: {
-          loader: "babel-loader",
+          loader: "swc-loader",
           options: {
-            presets: [
-              "@babel/preset-env",
-              "@babel/preset-react",
-              "@babel/preset-typescript",
-            ],
-            plugins: [require("react-refresh/babel")],
-          },
-        },
-        exclude: /node_modules/,
-      },
-      {
-        test: /\.jsx?$/,
-        use: {
-          loader: "babel-loader",
-          options: {
-            presets: ["@babel/preset-env", "@babel/preset-react"],
-            plugins: [require("react-refresh/babel")],
+            jsc: {
+              parser: {
+                syntax: "ecmascript",
+                jsx: true,
+              },
+              transform: {
+                react: {
+                  runtime: "automatic",
+                },
+              },
+            },
           },
         },
       },

@@ -6,7 +6,8 @@
     "pmmmwh",
     "prerendered",
     "rspack",
-    "turbopack"
+    "turbopack",
+    "umijs"
   ],
   "editor.inlineSuggest.showToolbar": "always"
 }
