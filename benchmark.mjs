@@ -19,14 +19,14 @@ const startConsole = "console.log('Start Time', Date.now());";
 const logger = new DefaultLogger({name: "Benchmark"});
 
 const brandColor = new Map([
-  ["Farm 1.1.7", purple],
-  ["Farm 1.1.7 (Hot)", purple],
-  ["Rspack 0.6.5", green],
-  ["Rspack 0.6.5 (Hot)", green],
-  ["Vite 6.0.0-alpha", yellow],
-  ["Vite 6.0.0-alpha (Hot)", yellow],
-  ["Webpack(babel) 5.91.0", cyan],
-  ["Webpack(babel) 5.91.0 (Hot)", cyan],
+  ["Farm 1.2.2", purple],
+  ["Farm 1.2.2 (Hot)", purple],
+  ["RsBuild 0.7.10", green],
+  ["RsBuild 0.7.10 (Hot)", green],
+  ["Vite 6.0.0-alpha", magenta],
+  ["Vite 6.0.0-alpha (Hot)", magenta],
+  ["Webpack 5.91.0", cyan],
+  ["Webpack 5.91.0 (Hot)", cyan],
 ]);
 
 class BuildTool {
@@ -147,41 +147,41 @@ class BuildTool {
 
 const buildTools = [
   new BuildTool(
-    "Farm 1.1.7",
+    "Farm 1.2.2",
     9000,
-    "start",
+    "start:farm",
     /Ready\s*in\s*(.+?)(m?s)/,
-    "build",
+    "build:farm",
     /completed\s*in\s*(.+?)(m?s)/,
     "@farmfe/cli/bin/farm.mjs"
   ),
   new BuildTool(
-    "Farm 1.1.7 (Hot)",
+    "Farm 1.2.2 (Hot)",
     9000,
-    "start",
+    "start:farm",
     /Ready\s*in\s*(.+?)(m?s)/,
-    "build",
+    "build:farm",
     /completed\s*in\s*(.+?)(m?s)/,
     "@farmfe/cli/bin/farm.mjs",
     true
   ),
   new BuildTool(
-    "Rspack 0.6.5",
-    8080,
-    "start:rspack",
+    "Rsbuild 0.7.10",
+    6532,
+    "start:rsbuild",
     /in\s*(.+?)(m?s)/,
-    "build:rspack",
+    "build:rsbuild",
     /in\s*(.+?)(m?s)/,
     "@rspack/cli/bin/rspack"
   ),
   new BuildTool(
-    "Rspack 0.6.5 (Hot)",
-    8080,
-    "start:rspack",
+    "Rsbuild 0.7.10 (Hot)",
+    6532,
+    "start:rsbuild",
     /in\s*(.+?)(m?s)/,
-    "build:rspack",
+    "build:rsbuild",
     /in\s*(.+?)(m?s)/,
-    "@rspack/cli/bin/rspack",
+    "@rsbuild/core/bin/rsbuild.js",
     true
   ),
   new BuildTool(
@@ -203,28 +203,8 @@ const buildTools = [
     "vite/bin/vite.js",
     true
   ),
-  // new BuildTool(
-  //   "Turbopack 14.0.3",
-  //   3000,
-  //   "start:turbopack",
-  //   /\s*Ready\s*in(.+)(s|ms)/,
-
-  //   "build:turbopack",
-  //   /prerendered\s+as\s+static\s+content/,
-  //   "next/dist/bin/next"
-  // ),
-  // new BuildTool(
-  //   "Turbopack 14.0.3 (Hot)",
-  //   3000,
-  //   "start:turbopack",
-  //   /\s*Ready\s*in(.+)(s|ms)/,
-  //   "build:turbopack",
-  //   /prerendered\s+as\s+static\s+content/,
-  //   "next/dist/bin/next",
-  //   true
-  // ),
   new BuildTool(
-    "Webpack(babel) 5.91.0",
+    "Webpack 5.91.0",
     8081,
     "start:webpack",
     /compiled\s+.+\sin\s*(.+?)(m?s)/,
@@ -233,7 +213,7 @@ const buildTools = [
     "webpack-cli/bin/cli.js"
   ),
   new BuildTool(
-    "Webpack(babel) 5.91.0 (Hot)",
+    "Webpack 5.91.0 (Hot)",
     8081,
     "start:webpack",
     /compiled\s+.+\sin\s*(.+?)(m?s)/,
@@ -247,7 +227,7 @@ const buildTools = [
 
 const browser = await puppeteer.launch({ headless: "new" });
 
-const n = 1;
+const n = 3;
 
 logger.info("Running benchmark " + n + " times, please wait...", {
   name: "Benchmark"
@@ -271,7 +251,7 @@ async function runBenchmark() {
 
     page.on("load", () => {
       const loadTime = Date.now() - start;
-      logger.info(": startup time: " + (time + loadTime) + "ms", {
+      logger.info("Startup time: " + (time + loadTime) + "ms", {
         name: buildTool.name,
         brandColor: brandColor.get(buildTool.name),
       });
@@ -313,7 +293,7 @@ async function runBenchmark() {
       if (event.text().includes("root hmr")) {
         const clientDateNow = /(\d+)/.exec(event.text())[1];
         const hmrTime = clientDateNow - hmrRootStart;
-        logger.info(" Root HMR time: " + hmrTime + "ms", {
+        logger.info("Root HMR time: " + hmrTime + "ms", {
           name: buildTool.name,
           brandColor: brandColor.get(buildTool.name),
         });
@@ -325,7 +305,7 @@ async function runBenchmark() {
         }
       } else if (event.text().includes("leaf hmr")) {
         const hmrTime = Date.now() - hmrLeafStart;
-        logger.info(" Leaf HMR time: " + hmrTime + "ms", {
+        logger.info("Leaf HMR time: " + hmrTime + "ms", {
           name: buildTool.name,
           brandColor: brandColor.get(buildTool.name),
         });
