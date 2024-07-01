@@ -3021,7 +3021,7 @@ packages:
 
   electron-to-chromium@1.4.815:
     resolution: {integrity: sha512-OvpTT2ItpOXJL7IGcYakRjHCt8L5GrrN/wHCQsRB4PQa1X9fe+X9oen245mIId7s14xvArCGSTIq644yPUKKLg==}
-
+    
   elliptic@6.5.5:
     resolution: {integrity: sha512-7EjbcmUm17NQFu4Pmgmq2olYMj8nwMnpcddByChSUjArp8F5DQWcIcpriwO4ZToLNAJig0yiyjswfyGNje/ixw==}
 
@@ -7335,10 +7335,24 @@ snapshots:
   '@rspack/binding-linux-x64-gnu@0.6.5':
     optional: true
 
+    optional: true
+
+  '@rspack/binding-linux-arm64-musl@0.6.5':
+    optional: true
+
+  '@rspack/binding-linux-arm64-musl@0.7.5':
+    optional: true
+
+  '@rspack/binding-linux-x64-gnu@0.6.5':
+    optional: true
+
   '@rspack/binding-linux-x64-gnu@0.7.5':
     optional: true
 
   '@rspack/binding-linux-x64-musl@0.6.5':
+    optional: true
+
+  '@rspack/binding-linux-x64-musl@0.7.5':
     optional: true
 
   '@rspack/binding-linux-x64-musl@0.7.5':
