@@ -185,7 +185,7 @@ const buildTools = [
     true
   ),
   new BuildTool(
-    "Vite 6.0.0-alpha",
+    "Vite 6.0.0-alpha (swc)",
     5173,
     "start:vite",
     /ready\s*in\s*(.+?)(m?s)/,
@@ -194,7 +194,7 @@ const buildTools = [
     "vite/bin/vite.js"
   ),
   new BuildTool(
-    "Vite 6.0.0-alpha (Hot)",
+    "Vite 6.0.0-alpha (swc)(Hot)",
     5173,
     "start:vite",
     /ready\s*in\s*(.+?)(m?s)/,
@@ -204,7 +204,26 @@ const buildTools = [
     true
   ),
   new BuildTool(
-    "Webpack 5.91.0",
+    "Vite 6.0.0-alpha (babel)",
+    5173,
+    "start:vite:babel",
+    /ready\s*in\s*(.+?)(m?s)/,
+    "build:vite",
+    /built\s*in\s*(.+?)(m?s)/,
+    "vite/bin/vite.js"
+  ),
+  new BuildTool(
+    "Vite 6.0.0-alpha (babel)(Hot)",
+    5173,
+    "start:vite:babel",
+    /ready\s*in\s*(.+?)(m?s)/,
+    "build:vite",
+    /built\s*in\s*(.+?)(m?s)/,
+    "vite/bin/vite.js",
+    true
+  ),
+  new BuildTool(
+    "Webpack 5.91.0 (swc)",
     8081,
     "start:webpack",
     /compiled\s+.+\sin\s*(.+?)(m?s)/,
@@ -213,9 +232,29 @@ const buildTools = [
     "webpack-cli/bin/cli.js"
   ),
   new BuildTool(
-    "Webpack 5.91.0 (Hot)",
+    "Webpack 5.91.0 (swc)(Hot)",
     8081,
     "start:webpack",
+    /compiled\s+.+\sin\s*(.+?)(m?s)/,
+    "build:webpack",
+    /compiled\s+.+\sin\s*(.+?)(m?s)/,
+
+    "webpack-cli/bin/cli.js",
+    true
+  ),
+  new BuildTool(
+    "Webpack 5.91.0 (babel)",
+    8081,
+    "start:webpack:babel",
+    /compiled\s+.+\sin\s*(.+?)(m?s)/,
+    "build:webpack",
+    /compiled\s+.+\sin\s*(.+?)(m?s)/,
+    "webpack-cli/bin/cli.js"
+  ),
+  new BuildTool(
+    "Webpack 5.91.0 (babel)(Hot)",
+    8081,
+    "start:webpack:babel",
     /compiled\s+.+\sin\s*(.+?)(m?s)/,
     "build:webpack",
     /compiled\s+.+\sin\s*(.+?)(m?s)/,

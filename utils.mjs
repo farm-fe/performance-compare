@@ -64,6 +64,7 @@ export async function getChartPic(data) {
                   data: keys,
                   axisLabel: {
                     interval: 0,
+                    width: 250
                   },
                 },
                 legend: {
