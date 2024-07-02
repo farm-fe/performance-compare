@@ -56,6 +56,12 @@ export async function getChartPic(data) {
 
             function renderChart() {
               const option = {
+                grid: {
+                  left: '3%',  
+                  top: '5%',
+                  bottom: '5%',
+                  containLabel: true
+                },
                 xAxis: {
                   type: "value",
                 },
