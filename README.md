@@ -1,6 +1,6 @@
 # performance-compare
 
-Benchmarks for [Farm](https://github.com/farm-fe/farm), RsBuild, Webpack, Vite
+Benchmarks for [Farm](https://github.com/farm-fe/farm), Rsbuild, Webpack, Vite
 
 > Using Turbopack's bench cases (1000 React components), see https://turbo.build/pack/docs/benchmarks
 
