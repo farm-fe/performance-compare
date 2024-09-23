@@ -21,8 +21,8 @@ const logger = new DefaultLogger({name: "Benchmark"});
 const brandColor = new Map([
   ["Farm 1.2.2", purple],
   ["Farm 1.2.2 (Hot)", purple],
-  ["RsBuild 0.7.10", green],
-  ["RsBuild 0.7.10 (Hot)", green],
+  ["RsBuild 1.0.5", green],
+  ["RsBuild 1.0.5 (Hot)", green],
   ["Vite 6.0.0-alpha", magenta],
   ["Vite 6.0.0-alpha (Hot)", magenta],
   ["Webpack 5.91.0", cyan],
@@ -166,16 +166,16 @@ const buildTools = [
     true
   ),
   new BuildTool(
-    "Rsbuild 0.7.10",
+    "Rsbuild 1.0.5",
     6532,
     "start:rsbuild",
     /in\s*(.+?)(m?s)/,
     "build:rsbuild",
     /in\s*(.+?)(m?s)/,
-    "@rspack/cli/bin/rspack"
+    "@rsbuild/core/bin/rsbuild.js"
   ),
   new BuildTool(
-    "Rsbuild 0.7.10 (Hot)",
+    "Rsbuild 1.0.5 (Hot)",
     6532,
     "start:rsbuild",
     /in\s*(.+?)(m?s)/,
