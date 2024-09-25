@@ -55,4 +55,7 @@ module.exports = {
     new rspack.HtmlRspackPlugin({ template: "./index.webpack.html" }),
     !isProduction && new ReactRefreshPlugin(),
   ].filter(Boolean),
+  experiments: {
+    css: true,
+  },
 };
