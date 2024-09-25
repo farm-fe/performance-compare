@@ -147,7 +147,7 @@ class BuildTool {
 
 const buildTools = [
   new BuildTool(
-    "Farm 1.2.2",
+    "Farm 1.3.22",
     9000,
     "start:farm",
     /Ready\s*in\s*(.+?)(m?s)/,
@@ -156,7 +156,7 @@ const buildTools = [
     "@farmfe/cli/bin/farm.mjs"
   ),
   new BuildTool(
-    "Farm 1.2.2 (Hot)",
+    "Farm 1.3.22 (Hot)",
     9000,
     "start:farm",
     /Ready\s*in\s*(.+?)(m?s)/,

@@ -6,23 +6,29 @@ Benchmarks for [Farm](https://github.com/farm-fe/farm), Rsbuild, Webpack, Vite
 
 > The `startup time` algorithm is the compilation time plus the time from browser loading to page rendering on the browser
 
+> **Tips:** 
+Farm compiled a write with incremental cache for the first time, The time to write the cache in the current warehouse module configuration is approximately 200ms
+Rsbuild currently has no caching mechanism, so we provide second-pass compilation data by default
+Later, we can wait for rspack to implement incremental caching and then we can re-separate the entire data,(the second compilation with caching and the first compilation without caching)
+
+<!-- > Tested on Linux Mint, 11th Gen Intel(R) Core(TM) i5-11400 @ 2.60GHz, 16GB -->
+> Tested on Macos M1 Pro
+
 |            framework        | startup | serverStartTime | onLoadTime | rootHmr | leafHmr | buildTime |
 |-------------------------------|---------------------------------------|-----------------|------------|---------|---------|-----------|
-|          Farm 1.2.2           |                396ms               |     228ms     |  167ms   | 18ms  | 13ms  |  313ms  |
-|       Farm 1.2.2 (Hot)        |                273ms               |     106ms     |  167ms   | 14ms  | 11ms  |  160ms  |
-|        Rsbuild 0.7.10         |                468ms                |     270ms     |  198ms   | 87ms  | 74ms  |  363ms  |
-|     Rsbuild 0.7.10 (Hot)      |                468ms               |     270ms     |  198ms   | 89ms  | 71ms  |  363ms  |
-|    Vite 6.0.0-alpha (swc)     |               1700ms                |     356ms     |  1343ms  | 22ms  | 11ms  | 1543ms  |
-|  Vite 6.0.0-alpha (swc)(Hot)  |               1426ms                |     350ms     |  1076ms  | 25ms  | 11ms  | 1540ms  |
-|   Vite 6.0.0-alpha (babel)    |               3160ms                |     362ms     |  2797ms  | 23ms  | 13ms  | 1556ms  |
-| Vite 6.0.0-alpha (babel)(Hot) |               2922ms                |     343ms     |  2579ms  | 27ms  | 16ms  | 1566ms  |
-|     Webpack 5.91.0 (swc)      |               2078ms                |    1758ms     |  320ms   | 532ms | 165ms | 4128ms  |
-|   Webpack 5.91.0 (swc)(Hot)   |                945ms                |     646ms     |  298ms   | 284ms | 182ms |  527ms  |
-|    Webpack 5.91.0 (babel)     |               6585ms                |    6282ms     |  302ms   | 214ms | 181ms |  518ms  |
-|  Webpack 5.91.0 (babel)(Hot)  |               1204ms                |     936ms     |  268ms   | 269ms | 161ms |  540ms  |
+|          Farm 1.3.22           |                481ms               |     322ms     |  159ms   | 32ms  | 44ms  |  651ms  |
+|       Farm 1.3.22 (Hot)        |                258ms               |     120ms     |  138ms   | 27ms  | 45ms  |  210ms  |
+|        Rsbuild 1.0.5         |                417ms                |     250ms     |  167ms   | 82ms  | 85ms  |  320ms  |
+|     Rsbuild 1.0.5 (Hot)      |                382ms               |     210ms     |  172ms   | 111ms  | 74ms  |  280ms  |
+|    Vite 6.0.0-alpha (swc)     |               1716ms                |     142ms     |  1574ms  | 114ms  | 123ms  | 1260ms  |
+|  Vite 6.0.0-alpha (swc)(Hot)  |               1077ms                |     114ms     |  963ms  | 34ms  | 17ms  | 1340ms  |
+|   Vite 6.0.0-alpha (babel)    |               2838ms                |     126ms     |  2712ms  | 28ms  | 28ms  | 1390ms  |
+| Vite 6.0.0-alpha (babel)(Hot) |               2563ms                |     111ms     |  2452ms  | 138ms  | 122ms  | 1310ms  |
+|     Webpack 5.91.0 (swc)      |               1926ms                |    1591ms     |  335ms   | 588ms | 158ms | 4144ms  |
+|   Webpack 5.91.0 (swc)(Hot)   |                851ms                |     557ms     |  294ms   | 242ms | 216ms |  483ms  |
+|    Webpack 5.91.0 (babel)     |               5607ms                |    5307ms     |  300ms   | 226ms | 171ms |  460ms  |
+|  Webpack 5.91.0 (babel)(Hot)  |               1083ms                |     827ms     |  256ms   | 260ms | 163ms |  481ms  |
 
-
-> Tested on Linux Mint, 11th Gen Intel(R) Core(TM) i5-11400 @ 2.60GHz, 16GB
 
 ### Full Benchmark
 ![xx](./full.png)
