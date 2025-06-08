@@ -7,40 +7,42 @@ const isProduction = process.env.NODE_ENV === "production";
  */
 module.exports = {
   context: __dirname,
+  devtool: isProduction ? false : 'inline-source-map',
   entry: {
     main: "./src/index.tsx",
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js", ".jsx", ".css"],
   },
-  watchOptions: {
-    poll: 0,
-    aggregateTimeout: 0,
-  },
-  stats: {
-    timings: true,
-    all: false,
-  },
   module: {
     rules: [
       {
         test: /\.svg$/,
-        type: "asset",
+        type: 'asset',
       },
       {
         test: /\.(js|ts|tsx|jsx)$/,
+        exclude: /node_modules/,
         use: {
-          loader: "builtin:swc-loader",
+          loader: 'builtin:swc-loader',
+          /** @type {import('@rspack/core').SwcLoaderOptions} */
           options: {
-            sourceMap: true,
+            env: {
+              targets: [
+                'chrome >= 87',
+                'edge >= 88',
+                'firefox >= 78',
+                'safari >= 14',
+              ],
+            },
             jsc: {
               parser: {
-                syntax: "typescript",
+                syntax: 'typescript',
                 tsx: true,
               },
               transform: {
                 react: {
-                  runtime: "automatic",
+                  runtime: 'automatic',
                   development: !isProduction,
                   refresh: !isProduction,
                 },
@@ -57,5 +59,6 @@ module.exports = {
   ].filter(Boolean),
   experiments: {
     css: true,
+    incremental: !isProduction ? true : undefined,
   },
 };
