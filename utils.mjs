@@ -4,6 +4,30 @@ import path from "node:path";
 import puppeteer from "puppeteer";
 
 const logger = new DefaultLogger({name: "Benchmark"});
+
+// 添加函数来清理ANSI转义序列
+function cleanVersionName(versionName) {
+  // 移除ANSI转义序列
+  return versionName.replace(/\x1B\[[0-9;]*m/g, '');
+}
+
+// 添加函数来处理数组格式的数据
+export function normalizeChartData(data) {
+  // 如果数据是数组，取第一个元素
+  if (Array.isArray(data)) {
+    data = data[0];
+  }
+  
+  // 清理版本名称中的ANSI转义序列
+  const cleanedData = {};
+  for (const [key, value] of Object.entries(data)) {
+    const cleanKey = cleanVersionName(key);
+    cleanedData[cleanKey] = value;
+  }
+  
+  return cleanedData;
+}
+
 export async function getChartPic(data) {
   const browser = await puppeteer.launch({ headless: "new" });
   const chartTypes = ["full", "hmr", "startup", "build"];
@@ -126,14 +150,14 @@ export async function deleteCacheFiles() {
       if (await folderExists(folderPath)) {
         try {
           await rmSync(folderPath, { recursive: true });
-          logger.info(`Deleted cache folder: ${folderPath}`);
+          // logger.info(`Deleted cache folder: ${folderPath}`);
         } catch (err) {
-          logger.error(
-            `Error deleting cache folder ${folderPath}: ${err.message}`
-          );
+          // logger.error(
+          //   `Error deleting cache folder ${folderPath}: ${err.message}`
+          // );
         }
       } else {
-        logger.warn(`Cache folder does not exist: ${folderPath}`);
+        // logger.warn(`Cache folder does not exist: ${folderPath}`);
       }
     })
   );
@@ -198,46 +222,79 @@ function generateChartScript(data, type) {
   let fData = [];
   switch (type) {
     case "full":
-      fData = Object.keys(data).map((key) => ({
-        [key]: {
-          "startup(serverStartTime + onLoadTime)":
-            data[key]["startup(serverStartTime + onLoadTime)"],
-          rootHmr: data[key]["rootHmr"],
-          leafHmr: data[key]["leafHmr"],
-          buildTime: data[key]["buildTime"],
-          hotBuildTime: data[key]["hotBuildTime"],
-          "hotStartup(serverStartTime + onLoadTime)":
-            data[key]["hotStartup(serverStartTime + onLoadTime)"],
-        },
-      }));
+      fData = Object.keys(data).map((key) => {
+        const item = data[key];
+        const result = {};
+        
+        // 添加存在的字段
+        if (item["startup(serverStartTime + onLoadTime)"]) {
+          result["startup(serverStartTime + onLoadTime)"] = item["startup(serverStartTime + onLoadTime)"];
+        }
+        if (item["rootHmr"]) {
+          result["rootHmr"] = item["rootHmr"];
+        }
+        if (item["leafHmr"]) {
+          result["leafHmr"] = item["leafHmr"];
+        }
+        if (item["buildTime"]) {
+          result["buildTime"] = item["buildTime"];
+        }
+        if (item["hotBuildTime"]) {
+          result["hotBuildTime"] = item["hotBuildTime"];
+        }
+        if (item["hotStartup(serverStartTime + onLoadTime)"]) {
+          result["hotStartup(serverStartTime + onLoadTime)"] = item["hotStartup(serverStartTime + onLoadTime)"];
+        }
+        
+        return { [key]: result };
+      });
       break;
     case "hmr":
-      fData = Object.keys(data).map((key) => ({
-        [key]: {
-          rootHmr: data[key]["rootHmr"],
-          leafHmr: data[key]["leafHmr"],
-        },
-      }));
+      fData = Object.keys(data).map((key) => {
+        const item = data[key];
+        const result = {};
+        
+        if (item["rootHmr"]) {
+          result["rootHmr"] = item["rootHmr"];
+        }
+        if (item["leafHmr"]) {
+          result["leafHmr"] = item["leafHmr"];
+        }
+        
+        return { [key]: result };
+      });
       break;
 
     case "startup":
-      fData = Object.keys(data).map((key) => ({
-        [key]: {
-          "startup(serverStartTime + onLoadTime)":
-            data[key]["startup(serverStartTime + onLoadTime)"],
-          "hotStartup(serverStartTime + onLoadTime)":
-            data[key]["hotStartup(serverStartTime + onLoadTime)"],
-        },
-      }));
+      fData = Object.keys(data).map((key) => {
+        const item = data[key];
+        const result = {};
+        
+        if (item["startup(serverStartTime + onLoadTime)"]) {
+          result["startup(serverStartTime + onLoadTime)"] = item["startup(serverStartTime + onLoadTime)"];
+        }
+        if (item["hotStartup(serverStartTime + onLoadTime)"]) {
+          result["hotStartup(serverStartTime + onLoadTime)"] = item["hotStartup(serverStartTime + onLoadTime)"];
+        }
+        
+        return { [key]: result };
+      });
       break;
 
     case "build":
-      fData = Object.keys(data).map((key) => ({
-        [key]: {
-          buildTime: data[key]["buildTime"],
-          hotBuildTime: data[key]["hotBuildTime"],
-        },
-      }));
+      fData = Object.keys(data).map((key) => {
+        const item = data[key];
+        const result = {};
+        
+        if (item["buildTime"]) {
+          result["buildTime"] = item["buildTime"];
+        }
+        if (item["hotBuildTime"]) {
+          result["hotBuildTime"] = item["hotBuildTime"];
+        }
+        
+        return { [key]: result };
+      });
       break;
 
     default:
